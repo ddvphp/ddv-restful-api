@@ -1,0 +1,27 @@
+{
+	"name": "ddvphp/ddv-restful-api",
+	"description": "ddv-restful-api php library",
+    "version": "2.0.4",
+    "minimum-stability":"beta",
+	"require": {
+		"php": ">=5.3"
+	},
+	"require-dev": {
+	},
+	"autoload": {
+		"psr-4": {
+			"DdvPhp\\": "src/"
+		}
+	},
+	"license": "LGP-2.1",
+	"authors": [
+		{
+			"name": "yuchonghua",
+			"email": "yuchonghua@163.com"
+		},
+		{
+			"name": "zengfangyao",
+			"email": "zengfanyaotara@163.com"
+		}
+	]
+}
