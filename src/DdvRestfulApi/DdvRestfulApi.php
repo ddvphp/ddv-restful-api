@@ -31,7 +31,7 @@
           self::$ddvRestfulApiObj = new self();
       }
       //返回的属性 其实就是本对象
-      return self::$ddvRestfulApiObj
+      return self::$ddvRestfulApiObj;
     }
 
   }
