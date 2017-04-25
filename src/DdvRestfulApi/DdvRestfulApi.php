@@ -17,6 +17,8 @@
     protected $header = array();
     //app请求标识
     protected $headersPrefix = 'x-ddv-' ;
+    //签名信息
+    protected $signInfo = array();
 
 
     protected function __construct ($config = null)
@@ -42,7 +44,21 @@
     }
     protected function requestParseByHttp ()
     {
-
+      $signInfo = &$this->signInfo;
+      $signInfo['type'] = 'http';
+      //获取头
+      $signInfo['header'] = $this->getHttpHeadersAsSysXAuth();
+      $signInfo['header'] = is_array($signInfo['header'])?$signInfo['header']:array();
+      if(empty($signInfo['header'])||empty($signInfo['header']['sys'])||empty($signInfo['header']['sys']['content-length'])||$signInfo['header']['sys']['content-length']<1){
+        return false;
+      }
+      //获取原始的类型
+      $contentTypeOrigin = $signInfo['header']['sys']['content-type'] ;
+      //拆分字符串为数组
+      $contentTypeArray = explode( ';', $contentTypeOrigin );
+      //函数删除数组中第一个元素，并返回被删除元素的值
+      $contentType = strtolower(array_shift( $contentTypeArray ));
+      var_dump($contentType);
     }
 
     //获取头信息
