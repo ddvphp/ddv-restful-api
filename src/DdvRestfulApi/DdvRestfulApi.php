@@ -36,7 +36,14 @@
       //返回的属性 其实就是本对象
       return self::$ddvRestfulApiObj;
     }
+    public function requestParse ()
+    {
+      $this->requestParseByHttp();
+    }
+    protected function requestParseByHttp ()
+    {
 
+    }
 
     //获取头信息
     public function getHttpHeaders($isReload = false){
