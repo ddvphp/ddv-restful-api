@@ -5,7 +5,7 @@
   use DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
   use DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
 
-ExceptionHandler::setHandler();
+
 
   /**
    * Class DdvRestfulApi
@@ -29,6 +29,16 @@ ExceptionHandler::setHandler();
       if (isset($config['headersPrefix'])) {
         $this->setHeadersPrefix($config['headersPrefix']);
       }
+    }
+    //后门
+    public static function onHandler()
+    {
+      return ExceptionHandler::onHandler();
+    }
+    //后门
+    public static function setHandler()
+    {
+      return ExceptionHandler::setHandler();
     }
     //后门
     public static function getDdvRestfulApi()

@@ -9,9 +9,16 @@ final class Handler
   //app请求标识
   private static $isSetErrorHandlerInit = false ;
   private static $isSetExceptionHandlerInit = false ;
+  private static $onHandlers = array();
   public function __construct()
   {
     throw new NotNewClassError("This Handler class does not support instantiation");
+  }
+  public static function onHandler(&$handler = null){
+    self::setHandler();
+    if(get_class($handler)==='Closure'){
+      self::$onHandlers[] = &$handler;
+    }
   }
   public static function setHandler(){
       self::setErrorHandlerInit();
@@ -45,14 +52,23 @@ final class Handler
       $e['code'] = 500 ;
     }
     $e['message'] = empty($e['message'])?'':$e['message'];
+    $isIgnoreError = false;
     if (isset($e['isIgnoreError'])) {
-      if($e['isIgnoreError']){
-        //忽略错误
-        return;
-      }
+      $isIgnoreError = (bool)$e['isIgnoreError'];
       unset($e['isIgnoreError']);
     }
-    var_dump($e);
+    $onHandlersLen = count(self::$onHandlers);
+    $emitNum = 0 ;
+    for ($i=0; $i < $onHandlersLen; $i++) { 
+      $fn = self::$onHandlers[$i];
+      if(get_class($fn)==='Closure'){
+        $emitNum++ ;
+        $fn($e, $isIgnoreError);
+      }
+    }
+    if ($emitNum<1) {
+      var_dump(222);
+    }
   }
   public static function isDevelopment(){
     return ENVIRONMENT==='development';
