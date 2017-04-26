@@ -2,6 +2,7 @@
 
   namespace DdvPhp\DdvRestfulApi;
   use DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
+  use DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
   use DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
 
@@ -30,17 +31,26 @@
         $this->setHeadersPrefix($config['headersPrefix']);
       }
     }
-    //后门
+    /**
+     * [onHandler 监听错误]
+     * @author: 桦 <yuchonghua@163.com>
+     * @DateTime 2017-04-26T18:55:58+0800
+     * @return   [type]                   [description]
+     */
     public static function onHandler()
     {
       return ExceptionHandler::onHandler();
     }
-    //后门
+    /**
+     * [setHandler 设置错误监听]
+     * @author: 桦 <yuchonghua@163.com>
+     * @DateTime 2017-04-26T18:56:12+0800
+     */
     public static function setHandler()
     {
       return ExceptionHandler::setHandler();
     }
-    //后门
+    // 获取实例化对象
     public static function getDdvRestfulApi()
     {
       if (self::$ddvRestfulApiObj === null) {

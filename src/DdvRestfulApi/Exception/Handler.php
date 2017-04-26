@@ -1,11 +1,12 @@
 <?php
  namespace DdvPhp\DdvRestfulApi\Exception;
+ use DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
 /**
 * 
 */
 final class Handler
 {
-  
+  private static $handlerDir =  __DIR__.'/../handler/';
   //app请求标识
   private static $isSetErrorHandlerInit = false ;
   private static $isSetExceptionHandlerInit = false ;
@@ -33,7 +34,7 @@ final class Handler
     if (function_exists('set_error_handler')) {
       set_error_handler(array('DdvPhp\DdvRestfulApi\Exception\Handler','errorHandler'));
     }
-    require_once __DIR__.'/error.handler.php';
+    require_once self::$handlerDir.'error.handler.php';
   }
   public static function setExceptionHandlerInit(){
     if (self::$isSetExceptionHandlerInit!==false) {
@@ -44,12 +45,12 @@ final class Handler
     if (function_exists('set_exception_handler')) {
       set_exception_handler(array('DdvPhp\DdvRestfulApi\Exception\Handler','exceptionHandler'));
     }
-    require_once __DIR__.'/exception.handler.php';
+    require_once self::$handlerDir.'exception.handler.php';
   }
   public static function emitHandler($e){
     $e = is_array($e)?$e:array();
-    if($e['code']===0){
-      $e['code'] = 500 ;
+    if (intval($e['statusCode'])<100) {
+      $e['statusCode'] = 500;
     }
     $e['message'] = empty($e['message'])?'':$e['message'];
     $isIgnoreError = false;
@@ -67,7 +68,9 @@ final class Handler
       }
     }
     if ($emitNum<1) {
-      var_dump(222);
+      if (!$isIgnoreError) {
+        ResponseParse::echoStr($e);
+      }
     }
   }
   public static function isDevelopment(){
@@ -81,7 +84,9 @@ final class Handler
     }
     $r = array();
     if (method_exists($e,'getCode')) {
-      $r['code'] =$e->getCode();
+      $r['statusCode'] = $e->getCode();
+    }else{
+      $r['statusCode'] = 500;
     }
     if (method_exists($e,'getErrorId')) {
       $r['errorId'] =$e->getErrorId();
@@ -110,13 +115,14 @@ final class Handler
     self::emitHandler($r);
   }
   // 用户定义的错误处理函数
-  public static function errorHandler($code, $message, $errfile, $errline, $errcontext){
-    $isError = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $code) === $code);
+  public static function errorHandler($errorCode, $message, $errfile, $errline, $errcontext){
+    $isError = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $errorCode) === $errorCode);
     $r = array();
-    $r['code'] =$code;
+    $r['errorCode'] =$errorCode;
+    $r['statusCode'] =500;
     $r['errorId'] ='UNKNOWN_ERROR';
     $r['message'] = $message;
-    $r['isIgnoreError'] = (($code & error_reporting()) !== $code);
+    $r['isIgnoreError'] = (($errorCode & error_reporting()) !== $errorCode);
     //调试模式
     if (self::isDevelopment()) {
       $r['debug'] = array();
@@ -127,7 +133,7 @@ final class Handler
       $r['debug']['isError'] = $isError;
       $r['debug']['isIgnoreError'] = $r['isIgnoreError'];
       try{
-        throw new \Exception($message, $code);
+        throw new \Exception($message, $errorCode);
       }catch(\Exception $e){
         $r['debug']['trace'] = $e->getTraceAsString();
         $r['debug']['trace'] = explode("\n", $r['debug']['trace']);
