@@ -24,8 +24,9 @@ final class Handler
     self::$isSetErrorHandlerInit = true;
     // 设置用户定义的错误处理函数
     if (function_exists('set_error_handler')) {
-     // set_error_handler(array('DdvPhp\DdvRestfulApi\Exception\Handler','errorHandler'));
+      set_error_handler(array('DdvPhp\DdvRestfulApi\Exception\Handler','errorHandler'));
     }
+    require_once __DIR__.'/error.handler.php';
   }
   public static function setExceptionHandlerInit(){
     if (self::$isSetExceptionHandlerInit!==false) {
@@ -34,8 +35,9 @@ final class Handler
     self::$isSetExceptionHandlerInit = true;
     //设置异常处理
     if (function_exists('set_exception_handler')) {
-      set_exception_handler(array('DdvPhp\DdvRestfulApi\Exception\Handler','catchException'));
+      set_exception_handler(array('DdvPhp\DdvRestfulApi\Exception\Handler','exceptionHandler'));
     }
+    require_once __DIR__.'/exception.handler.php';
   }
   public static function emitHandler($e){
     $e = is_array($e)?$e:array();
@@ -43,13 +45,23 @@ final class Handler
       $e['code'] = 500 ;
     }
     $e['message'] = empty($e['message'])?'':$e['message'];
-    echo json_encode($e);
+    if (isset($e['isIgnoreError'])) {
+      if($e['isIgnoreError']){
+        //忽略错误
+        return;
+      }
+      unset($e['isIgnoreError']);
+    }
+    var_dump($e);
   }
-  public static function catchException($e){
+  public static function isDevelopment(){
+    return ENVIRONMENT==='development';
+  }
+  public static function exceptionHandler($e){
     //默认错误行数
-    $line = 0 ;
+    $errline = 0 ;
     if (method_exists($e,'getLine')) {
-      $line =$e->getLine();
+      $errline =$e->getLine();
     }
     $r = array();
     if (method_exists($e,'getCode')) {
@@ -70,27 +82,45 @@ final class Handler
       $r = array_merge($e->getResponseData(), $r);
     }
     //调试模式
-    if (ENVIRONMENT==='development') {
+    if (self::isDevelopment()) {
       $r['debug'] = array();
       $r['debug']['type'] = get_class($e);
-      $r['debug']['line'] = $line;
+      $r['debug']['line'] = $errline;
       $r['debug']['file'] = $e->getFile();
       $r['debug']['trace'] = $e->getTraceAsString();
       $r['debug']['trace'] = explode("\n", $r['debug']['trace']);
+      $r['debug']['isError'] = false;
     }
     self::emitHandler($r);
   }
   // 用户定义的错误处理函数
-  public static function errorHandler2($errno, $errstr, $errfile, $errline){
-    var_dump(333);
-  }
-  // 用户定义的错误处理函数
-  public static function errorHandler($errno, $errstr, $errfile, $errline){
-
-     echo "\n\n";
-     var_dump($errno, $errstr, $errfile, $errline);
-     throw new \Exception("Error Processing Request", 1);
-     
+  public static function errorHandler($code, $message, $errfile, $errline, $errcontext){
+    $isError = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $code) === $code);
+    $r = array();
+    $r['code'] =$code;
+    $r['errorId'] ='UNKNOWN_ERROR';
+    $r['message'] = $message;
+    $r['isIgnoreError'] = (($code & error_reporting()) !== $code);
+    //调试模式
+    if (self::isDevelopment()) {
+      $r['debug'] = array();
+      $r['debug']['type'] = 'Error';
+      $r['debug']['line'] = $errline;
+      $r['debug']['file'] = $errfile;
+      $r['debug']['trace'] = '';
+      $r['debug']['isError'] = $isError;
+      $r['debug']['isIgnoreError'] = $r['isIgnoreError'];
+      try{
+        throw new \Exception($message, $code);
+      }catch(\Exception $e){
+        $r['debug']['trace'] = $e->getTraceAsString();
+        $r['debug']['trace'] = explode("\n", $r['debug']['trace']);
+        if (count($r['debug']['trace'])>0) {
+          $r['debug']['trace'] = array_splice($r['debug']['trace'],2);
+        }
+      }
+    }
+    self::emitHandler($r);
   }
 }
 ?>
