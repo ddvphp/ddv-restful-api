@@ -3,7 +3,9 @@
   namespace DdvPhp\DdvRestfulApi;
   use DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
   use DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
+  use DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
 
+ExceptionHandler::setHandler();
 
   /**
    * Class DdvRestfulApi
