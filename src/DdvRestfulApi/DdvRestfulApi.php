@@ -41,7 +41,8 @@
     // 请求解析
     public function requestParse ()
     {
-      return RequestParse::requestParse();
+      $this->signInfo = RequestParse::requestParse();
+      return $this->signInfo;
     }
     //获取头信息
     public function getHeadersPrefix(){
