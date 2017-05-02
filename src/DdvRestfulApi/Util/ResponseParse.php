@@ -1,8 +1,10 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Util;
-use DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-use DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
-use DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
+use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
+use \DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
+use \DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
+use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
+use \DdvPhp\DdvRestfulApi\DdvRestfulApi as DdvRestfulApiClass;
 /**
 * 
 */
@@ -37,13 +39,14 @@ final class ResponseParse
     return $r;
   }
   //获取签名信息
-  public static function echoStr($data, $isDie = true, $isAutoHeader = true, $isAutoSessionClose = true, $isNotUnescapedUnicode = true){
+  public static function echoStr($data, $isDie = true, $isAutoHeader = true, $isAutoSessionClose = true, $isAutoObClean = null, $isNotUnescapedUnicode = true){
     // 关闭会话
     try{
       if ($isAutoSessionClose===true&&function_exists('session_write_close')) {
         @session_write_close();
       }
     }catch(Exception $e){}
+    $isAutoObClean = !DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment();
 
     $statusCode = empty($data['statusCode'])? ( isset($data['errorId'])&&$data['errorId']!=='OK'?500:200 ) : $data['statusCode'] ;
     $statusText = empty($data['errorId']) ? '' : $data['errorId'];
@@ -65,6 +68,11 @@ final class ResponseParse
     }
     if ($isAutoHeader===true) {
       @header('Content-Type:application/json;charset=utf-8',true);
+    }
+    if ($isAutoObClean===true) {
+      try{
+        ob_clean();
+      }catch(Exception $e){}
     }
     echo self::toJsonString($data);
     if ($isDie===true) {

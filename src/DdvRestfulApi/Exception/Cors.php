@@ -5,10 +5,10 @@
   use \DdvPhp\DdvRestfulApi\Exception\Error as DdvErrorException;
 
 
-  class NotNewClassError extends DdvErrorException
+  class Cors extends DdvErrorException
   {
     // 魔术方法
-    public function __construct( $message = 'This class does not support instantiation', $errorId = 'NotNewClassError' , $code = '500' )
+    public function __construct( $message = 'Cors Error', $errorId = 'CORS_ERROR' , $code = '403' )
     {
       parent::__construct( $message , $errorId , $code );
     }

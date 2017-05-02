@@ -1,10 +1,12 @@
 <?php
 
   namespace DdvPhp\DdvRestfulApi;
-  use DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
-  use DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
-  use DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-  use DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
+  use \DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
+  use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
+  use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
+  use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
+  use \DdvPhp\DdvRestfulApi\Sign as DdvSign;
+  use \DdvPhp\DdvRestfulApi\Cors as DdvCors;
 
 
 
@@ -21,7 +23,7 @@
     //app请求标识
     protected $headersPrefix = 'x-ddv-' ;
     //签名信息
-    protected $signInfo = array();
+    protected $signInfo = null;
 
 
     protected function __construct ($config = null)
@@ -37,34 +39,77 @@
      * @DateTime 2017-04-26T18:55:58+0800
      * @return   [type]                   [description]
      */
-    public static function onHandler()
+    public function onHandler($e)
     {
-      return ExceptionHandler::onHandler();
+      if (isset($e['isIgnoreError'])&&$e['isIgnoreError']===true) {
+        return;
+      }
+      if (!empty($e['responseData'])) {
+        array_merge($e, $e['responseData']);
+      }
+      if(isset($e['responseData'])) unset($e['responseData']);
+      if(!$this->isDevelopment()){
+        if(isset($e['debug'])) unset($e['debug']);
+        if(isset($e['isIgnoreError'])) unset($e['isIgnoreError']);
+      }
+      ResponseParse::echoStr($e);
+    }
+    public function isDevelopment(){
+      return defined('ENVIRONMENT') && ENVIRONMENT==='development';
+    }
+    /**
+     * [setHandler 输出]
+     * @author: 桦 <yuchonghua@163.com>
+     * @DateTime 2017-04-26T18:56:12+0800
+     */
+    public static function echoStr($e)
+    {
+      return ResponseParse::echoStr($e);
     }
     /**
      * [setHandler 设置错误监听]
      * @author: 桦 <yuchonghua@163.com>
      * @DateTime 2017-04-26T18:56:12+0800
      */
-    public static function setHandler()
+    public function useHandler()
     {
-      return ExceptionHandler::setHandler();
-    }
-    // 获取实例化对象
-    public static function getDdvRestfulApi()
-    {
-      if (self::$ddvRestfulApiObj === null) {
-          //实例化一个单例对象
-          self::$ddvRestfulApiObj = new self();
-      }
-      //返回的属性 其实就是本对象
-      return self::$ddvRestfulApiObj;
+      ExceptionHandler::setHandler($this, 'onHandler');
+      return $this;
     }
     // 请求解析
     public function requestParse ()
     {
-      $this->signInfo = RequestParse::requestParse();
+      if (empty($this->signInfo)) {
+        $this->signInfo = RequestParse::requestParse();
+      }
       return $this->signInfo;
+    }
+    // 授权模块
+    public function initCors ($config=array())
+    {
+      return DdvCors::init($config);
+    }
+    // 授权模块
+    public function authSign ()
+    {
+      $this->signInfo = DdvSign::sign($this->requestParse());
+      return $this->signInfo;
+    }
+    // 获取实例化对象
+    public static function getInstance()
+    {
+      return self::getDdvRestfulApi();
+    }
+    // 获取实例化对象
+    public static function getDdvRestfulApi($class = null)
+    {
+      $class = empty($class)? get_called_class() : $class ;
+      if (self::$ddvRestfulApiObj === null) {
+        //实例化一个单例对象
+        self::$ddvRestfulApiObj = empty($class)?(new self()):(new $class());
+      }
+      //返回的属性 其实就是本对象
+      return self::$ddvRestfulApiObj;
     }
     //获取头信息
     public function getHeadersPrefix(){

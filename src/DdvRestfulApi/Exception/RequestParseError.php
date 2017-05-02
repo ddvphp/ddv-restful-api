@@ -2,7 +2,7 @@
 
   namespace DdvPhp\DdvRestfulApi\Exception;
 
-  use DdvPhp\DdvRestfulApi\Exception\Error as DdvErrorException;
+  use \DdvPhp\DdvRestfulApi\Exception\Error as DdvErrorException;
 
 
   class RequestParseError extends DdvErrorException

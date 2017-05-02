@@ -1,29 +1,27 @@
 <?php
  namespace DdvPhp\DdvRestfulApi\Exception;
- use DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
+ use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
+ use \DdvPhp\DdvRestfulApi\DdvRestfulApi as DdvRestfulApiClass;
 /**
 * 
 */
 final class Handler
 {
+  private static $onHandlerObj = null;
+  private static $onHandlerMethod = null;
   private static $handlerDir =  __DIR__.'/../handler/';
   //app请求标识
   private static $isSetErrorHandlerInit = false ;
   private static $isSetExceptionHandlerInit = false ;
-  private static $onHandlers = array();
   public function __construct()
   {
     throw new NotNewClassError("This Handler class does not support instantiation");
   }
-  public static function onHandler(&$handler = null){
-    self::setHandler();
-    if(get_class($handler)==='Closure'){
-      self::$onHandlers[] = &$handler;
-    }
-  }
-  public static function setHandler(){
-      self::setErrorHandlerInit();
-      self::setExceptionHandlerInit();
+  public static function setHandler($obj, $method){
+    self::$onHandlerObj = $obj;
+    self::$onHandlerMethod = $method;
+    self::setErrorHandlerInit();
+    self::setExceptionHandlerInit();
   }
   public static function setErrorHandlerInit(){
     if (self::$isSetErrorHandlerInit!==false) {
@@ -53,28 +51,15 @@ final class Handler
       $e['statusCode'] = 500;
     }
     $e['message'] = empty($e['message'])?'':$e['message'];
-    $isIgnoreError = false;
-    if (isset($e['isIgnoreError'])) {
-      $isIgnoreError = (bool)$e['isIgnoreError'];
-      unset($e['isIgnoreError']);
-    }
-    $onHandlersLen = count(self::$onHandlers);
-    $emitNum = 0 ;
-    for ($i=0; $i < $onHandlersLen; $i++) { 
-      $fn = self::$onHandlers[$i];
-      if(get_class($fn)==='Closure'){
-        $emitNum++ ;
-        $fn($e, $isIgnoreError);
-      }
-    }
-    if ($emitNum<1) {
-      if (!$isIgnoreError) {
+    $onHandlerMethod = self::$onHandlerMethod;
+    $onHandlerObj = self::$onHandlerObj;
+    if ((!empty($onHandlerMethod))&&method_exists($onHandlerObj, $onHandlerMethod)) {
+      $onHandlerObj->$onHandlerMethod($e);
+    }else{
+      if (!$e['isIgnoreError']) {
         ResponseParse::echoStr($e);
       }
     }
-  }
-  public static function isDevelopment(){
-    return ENVIRONMENT==='development';
   }
   public static function exceptionHandler($e){
     //默认错误行数
@@ -100,10 +85,15 @@ final class Handler
       $r['errorId'] =empty($r['errorId'])?'Unknown Error':$r['errorId'];
     }
     if (method_exists($e,'getResponseData')) {
+      $r['responseData'] =$e->getResponseData();
+    }else{
+      $r['responseData'] = array();
+    }
+    if (method_exists($e,'getResponseData')) {
       $r = array_merge($e->getResponseData(), $r);
     }
     //调试模式
-    if (self::isDevelopment()) {
+    if (DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment()) {
       $r['debug'] = array();
       $r['debug']['type'] = get_class($e);
       $r['debug']['line'] = $errline;
@@ -111,6 +101,7 @@ final class Handler
       $r['debug']['trace'] = $e->getTraceAsString();
       $r['debug']['trace'] = explode("\n", $r['debug']['trace']);
       $r['debug']['isError'] = false;
+      $r['debug']['isIgnoreError'] = false;
     }
     self::emitHandler($r);
   }
@@ -123,8 +114,9 @@ final class Handler
     $r['errorId'] ='UNKNOWN_ERROR';
     $r['message'] = $message;
     $r['isIgnoreError'] = (($errorCode & error_reporting()) !== $errorCode);
+    $r['responseData'] = array();
     //调试模式
-    if (self::isDevelopment()) {
+    if (DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment()) {
       $r['debug'] = array();
       $r['debug']['type'] = 'Error';
       $r['debug']['line'] = $errline;

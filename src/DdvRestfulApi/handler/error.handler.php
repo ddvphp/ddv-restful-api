@@ -19,14 +19,14 @@
 
 if ( ! function_exists('_error_handler'))
 {
-  function _error_handler($severity, $message, $filepath, $line, $errcontext)
+  function _error_handler($severity, $message, $filepath, $line = 0, $errcontext=null)
   {
     return DdvPhp\DdvRestfulApi\Exception\Handler::errorHandler($severity, $message, $filepath, $line, $errcontext);
   }
 }
 if ( ! function_exists('error_handler'))
 {
-  function error_handler($severity, $message, $filepath, $line, $errcontext)
+  function error_handler($severity, $message, $filepath, $line = 0, $errcontext=null)
   {
     return _error_handler($severity, $message, $filepath, $line, $errcontext);
   }

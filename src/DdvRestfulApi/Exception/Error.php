@@ -2,7 +2,7 @@
 
   namespace DdvPhp\DdvRestfulApi\Exception;
 
-  use DdvPhp\DdvRestfulApi\Exception\Ddv as DdvException;
+  use \DdvPhp\DdvRestfulApi\Exception\Ddv as DdvException;
 
 
   class Error extends DdvException

@@ -1,6 +1,6 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Util;
-use DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
+use \DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
 /**
 * 
 */

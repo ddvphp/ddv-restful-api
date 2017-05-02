@@ -2,10 +2,8 @@
 
   namespace DdvPhp\DdvRestfulApi\Exception;
 
-  use Exception;
 
-
-  class Ddv extends Exception
+  class Ddv extends \Exception
   {
     /* 属性 */
     protected $errorId ;
