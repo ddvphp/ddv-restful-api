@@ -16,6 +16,7 @@ use \DdvPhp\DdvRestfulApi\Exception\Cors as CorsException;
 
     public static function init($config)
     {
+      $control = is_array($config['control']) ? $config['control'] : 7200;
       $origins = is_array($config['origin']) ? $config['origin'] : array();
       $methods = is_array($config['method']) ? $config['method'] : array();
       $allowHeaders = is_array($config['allowHeader']) ? $config['allowHeader'] : array();
@@ -51,25 +52,49 @@ use \DdvPhp\DdvRestfulApi\Exception\Cors as CorsException;
       if (!in_array($originMethod, $methods)) {
         throw new CorsException("No method is allowed", 'NO_METHODS_ALLOWED');
       }
-      /*
+
+      //请求头
+      $originHeadersStr = empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])? '' : $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'];
+      $originHeadersStr = 'accept, authorization,content-md5,content-type,x-requested-with';
+      //拆分数组
+      $originHeaders = explode(',', $originHeadersStr);
+      $originHeadersLen = count($originHeaders);
+      $allowOriginHeaders = array();
+      
+      for ($i=0; $i < $originHeadersLen; $i++) {
+        $t = $originHeaders[$i];
+        $t = trim($t);
+        if(!self::checkHeader($t, $allowHeaders)){
+          throw new CorsException('No '.$t.' header is allowed', 'NO_HEADER_ALLOWED');
+        }
+        $allowOriginHeaders[]=$t;
+      }
+      $allowOriginHeadersStr = implode(', ', $allowOriginHeaders);
+      //允许自定义的头部，以逗号隔开，大小写不敏感
+      @header('Access-Control-Allow-Headers:'.$allowOriginHeadersStr);
+      //允许脚本访问的返回头，请求成功后，脚本可以在XMLHttpRequest中访问这些头的信息(貌似webkit没有实现这个)
+      @header('Access-Control-Expose-Headers:set-cookie, request-id, session-sign');
+      //允许使用的请求方法，以逗号隔开
+      @header('Access-Control-Allow-Methods:'.$originMethod);
+      //缓存此次请求的秒数。在这个时间范围内，所有同类型的请求都将不再发送预检请求而是直接使用此次返回的头作为判断依据，非常有用，大幅优化请求次数
+      @header('Access-Control-Max-Age:'.$control);
+      die();
+    }
+    public static function checkHeader($originHeader='', $allowHeaders=array())
+    {
+      $allowHeaderPasst = false;
       $allowHeadersLen = count($allowHeaders);
-      $allowHeaderPass = false;
       for ($i=0; $i < $allowHeadersLen; $i++) {
-        $methodt = $allowHeaders[$i];
-        if ($originMethod===substr($methodt, 0, strlen($originMethod))) {
-          $allowHeaderPass = true;
-          var_dump(222);
+        $headert = $allowHeaders[$i];
+        if ($originHeader===substr($headert, 0, strlen($originHeader))) {
+          $allowHeaderPasst = true;
           break;
-        }else if(preg_match(('/^'.self::getReg($methodt).'$/'), $originMethod)){
-          $allowHeaderPass = true;
-          var_dump(2224);
+        }else if(preg_match(('/^'.self::getReg($headert).'$/'), $originHeader)){
+          $allowHeaderPasst = true;
           break;
         }
       }
-      if (!$allowHeaderPass) {
-        throw new CorsException("No method is allowed", 'NO_METHODS_ALLOWED');
-      }*/
-      var_dump('initCors', $allowHeaders, $originMethod);
+      return $allowHeaderPasst;
     }
     public static function getReg($url='')
     {
