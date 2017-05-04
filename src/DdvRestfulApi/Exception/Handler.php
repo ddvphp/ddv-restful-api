@@ -45,19 +45,19 @@ final class Handler
     }
     require_once self::$handlerDir.'exception.handler.php';
   }
-  public static function emitHandler($e){
-    $e = is_array($e)?$e:array();
-    if (intval($e['statusCode'])<100) {
-      $e['statusCode'] = 500;
+  public static function emitHandler($r, $e){
+    $r = is_array($r)?$r:array();
+    if (intval($r['statusCode'])<100) {
+      $r['statusCode'] = 500;
     }
-    $e['message'] = empty($e['message'])?'':$e['message'];
+    $r['message'] = empty($r['message'])?'':$r['message'];
     $onHandlerMethod = self::$onHandlerMethod;
     $onHandlerObj = self::$onHandlerObj;
     if ((!empty($onHandlerMethod))&&method_exists($onHandlerObj, $onHandlerMethod)) {
-      $onHandlerObj->$onHandlerMethod($e);
+      $onHandlerObj->$onHandlerMethod($r, $e);
     }else{
-      if (!$e['isIgnoreError']) {
-        ResponseParse::echoStr($e);
+      if (!$r['isIgnoreError']) {
+        ResponseParse::echoStr($r, $e);
       }
     }
   }
@@ -103,7 +103,7 @@ final class Handler
       $r['debug']['isError'] = false;
       $r['debug']['isIgnoreError'] = false;
     }
-    self::emitHandler($r);
+    self::emitHandler($r, $e);
   }
   // 用户定义的错误处理函数
   public static function errorHandler($errorCode, $message, $errfile, $errline, $errcontext){
@@ -115,6 +115,7 @@ final class Handler
     $r['message'] = $message;
     $r['isIgnoreError'] = (($errorCode & error_reporting()) !== $errorCode);
     $r['responseData'] = array();
+    $e = new \Exception($message, $errorCode);
     //调试模式
     if (DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment()) {
       $r['debug'] = array();
@@ -124,17 +125,13 @@ final class Handler
       $r['debug']['trace'] = '';
       $r['debug']['isError'] = $isError;
       $r['debug']['isIgnoreError'] = $r['isIgnoreError'];
-      try{
-        throw new \Exception($message, $errorCode);
-      }catch(\Exception $e){
-        $r['debug']['trace'] = $e->getTraceAsString();
-        $r['debug']['trace'] = explode("\n", $r['debug']['trace']);
-        if (count($r['debug']['trace'])>0) {
-          $r['debug']['trace'] = array_splice($r['debug']['trace'],2);
-        }
+      $r['debug']['trace'] = $e->getTraceAsString();
+      $r['debug']['trace'] = explode("\n", $r['debug']['trace']);
+      if (count($r['debug']['trace'])>0) {
+        $r['debug']['trace'] = array_splice($r['debug']['trace'],2);
       }
     }
-    self::emitHandler($r);
+    self::emitHandler($r, $e);
   }
 }
 ?>

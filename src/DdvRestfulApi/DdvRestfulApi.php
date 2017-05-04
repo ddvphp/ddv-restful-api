@@ -6,7 +6,8 @@
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
   use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
   use \DdvPhp\DdvRestfulApi\Sign as DdvSign;
-  use \DdvPhp\DdvRestfulApi\Cors as DdvCors;
+  use \DdvPhp\DdvRestfulApi\Cors as CorsException;
+  use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
 
 
@@ -39,20 +40,23 @@
      * @DateTime 2017-04-26T18:55:58+0800
      * @return   [type]                   [description]
      */
-    public function onHandler($e)
+    public function onHandler($r, $e)
     {
-      if (isset($e['isIgnoreError'])&&$e['isIgnoreError']===true) {
+      if ($e instanceof OptionsCorsException) {
+        die();
+      }
+      if (isset($r['isIgnoreError'])&&$r['isIgnoreError']===true) {
         return;
       }
-      if (!empty($e['responseData'])) {
-        array_merge($e, $e['responseData']);
+      if (!empty($r['responseData'])) {
+        array_merge($r, $r['responseData']);
       }
-      if(isset($e['responseData'])) unset($e['responseData']);
+      if(isset($r['responseData'])) unset($r['responseData']);
       if(!$this->isDevelopment()){
-        if(isset($e['debug'])) unset($e['debug']);
-        if(isset($e['isIgnoreError'])) unset($e['isIgnoreError']);
+        if(isset($r['debug'])) unset($r['debug']);
+        if(isset($r['isIgnoreError'])) unset($r['isIgnoreError']);
       }
-      ResponseParse::echoStr($e);
+      ResponseParse::echoStr($r);
     }
     public function isDevelopment(){
       return defined('ENVIRONMENT') && ENVIRONMENT==='development';
@@ -87,7 +91,7 @@
     // 授权模块
     public function initCors ($config=array())
     {
-      return DdvCors::init($config);
+      return CorsException::init($config);
     }
     // 授权模块
     public function authSign ()

@@ -3,6 +3,7 @@
   namespace DdvPhp\DdvRestfulApi;
 
 use \DdvPhp\DdvRestfulApi\Exception\Cors as CorsException;
+use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
   /**
    * Class Cors
@@ -78,7 +79,7 @@ use \DdvPhp\DdvRestfulApi\Exception\Cors as CorsException;
       @header('Access-Control-Allow-Methods:'.$originMethod);
       //缓存此次请求的秒数。在这个时间范围内，所有同类型的请求都将不再发送预检请求而是直接使用此次返回的头作为判断依据，非常有用，大幅优化请求次数
       @header('Access-Control-Max-Age:'.$control);
-      die();
+      throw new OptionsCorsException('Allow pass', 'ALLOW_PASS');
     }
     public static function checkHeader($originHeader='', $allowHeaders=array())
     {

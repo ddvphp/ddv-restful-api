@@ -23,7 +23,8 @@ final class RequestParse
     $info['header'] = RequestHeaders::getHttpHeadersAsSysXAuth();
     $info['header'] = is_array($info['header'])?$info['header']:array();
     if(empty($info['header'])||empty($info['header']['sys'])||empty($info['header']['sys']['content-length'])||$info['header']['sys']['content-length']<1){
-      return false;
+      $info['isContentMd5True'] = true;
+      return $info;
     }
     $contentMd5 = $info['header']['sys']['content-length'];
     $params = array();
