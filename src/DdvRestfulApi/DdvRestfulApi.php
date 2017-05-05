@@ -45,6 +45,9 @@
       if ($e instanceof OptionsCorsException) {
         die();
       }
+      // if ($e instanceof AuthEchoException) {
+      //   die();
+      // }
       if (isset($r['isIgnoreError'])&&$r['isIgnoreError']===true) {
         return;
       }

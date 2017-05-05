@@ -8,8 +8,8 @@
   class RJsonSuccess extends DdvException
   {
     // 魔术方法
-    public function __construct($message = '' , $errorId = 'OK' , $code = '200' )
+    public function __construct($RJsonData = array(), $message = '' , $errorId = 'OK' , $code = '200' )
     {
-      parent::__construct( $message , $errorId , $code );
+      parent::__construct( $message , $errorId , $code, $RJsonData );
     }
   }

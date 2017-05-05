@@ -2,6 +2,7 @@
 
   namespace DdvPhp\DdvRestfulApi;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
+  use \DdvPhp\DdvRestfulApi\Exception\AuthEcho as AuthEchoException;
 
 
   /**
@@ -60,7 +61,12 @@
       }
       // 实例化该文件
       $authObj = new $className($a2, $signInfo);
-      var_dump('3', $className, $a2,  $file, $authObj);
+      // 回收部分变量
+      unset($authorization, $v, $a2, $className, $file, $signInfo);
+      // 签名
+      $sign = $authObj->runSign();
+      throw new AuthEchoException($sign);
+      
     }
   }
 ?>

@@ -10,6 +10,6 @@
     // 魔术方法
     public function __construct($message = '' , $errorId = 'OK' , $code = '200' )
     {
-      parent::__construct( $message , $errorId , $code );
+      parent::__construct(array(), $message , $errorId , $code );
     }
   }
