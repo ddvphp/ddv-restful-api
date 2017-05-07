@@ -123,20 +123,6 @@
         // 干扰码
         $interference
       );
-
-      //请求id
-      $session_request_id = isset($a[1])?$a[1]:'';
-      //session_id
-      $session_id = isset($a[2])?$a[2]:'';
-      //session_card
-      $session_card = isset($a[3])?$a[3]:'';
-      //签名时间
-      $sign_time_string = strtoupper(isset($a[4])?$a[4]:0);
-      $interference = isset($a[6])?$a[6]:'';
-      $session_sign = isset($a[7])?$a[7]:'';
-
-      var_dump(2, $auths);
-
     }
   }
 

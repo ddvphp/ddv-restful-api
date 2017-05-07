@@ -56,7 +56,6 @@ use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
       //请求头
       $originHeadersStr = empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])? '' : $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'];
-      $originHeadersStr = 'accept, authorization,content-md5,content-type,x-requested-with';
       //拆分数组
       $originHeaders = explode(',', $originHeadersStr);
       $originHeadersLen = count($originHeaders);

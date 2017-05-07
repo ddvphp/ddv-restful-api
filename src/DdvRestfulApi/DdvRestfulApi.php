@@ -103,17 +103,17 @@
       return $this->signInfo;
     }
     // 获取实例化对象
-    public static function getInstance()
+    public static function getInstance($config = array(), $class = null)
     {
-      return self::getDdvRestfulApi();
+      return self::getDdvRestfulApi($config, $class);
     }
     // 获取实例化对象
-    public static function getDdvRestfulApi($class = null)
+    public static function getDdvRestfulApi($config = array(), $class = null)
     {
       $class = empty($class)? get_called_class() : $class ;
       if (self::$ddvRestfulApiObj === null) {
         //实例化一个单例对象
-        self::$ddvRestfulApiObj = empty($class)?(new self()):(new $class());
+        self::$ddvRestfulApiObj = empty($class)?(new self($config)):(new $class($config));
       }
       //返回的属性 其实就是本对象
       return self::$ddvRestfulApiObj;

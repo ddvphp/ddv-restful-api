@@ -1,48 +1,26 @@
 <?php 
   namespace DdvPhp\DdvRestfulApi\Auth;
+  use \DdvPhp\DdvRestfulApi\Sign as DdvSign;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
-  // 根据RFC 3986，除了：
-  //   1.大小写英文字符
-  //   2.阿拉伯数字
-  //   3.点'.'、波浪线'~'、减号'-'以及下划线'_'
-  // 以外都要编码
-  $PERCENT_ENCODED_STRINGS = array();
-  for ($i = 0; $i < 256; ++$i) {
-    $PERCENT_ENCODED_STRINGS[$i] = sprintf("%%%02X", $i);
-  }
-
-      //a-z不编码
-  foreach (range('a', 'z') as $ch) {
-    $PERCENT_ENCODED_STRINGS[ord($ch)] = $ch;
-  }
-
-      //A-Z不编码
-  foreach (range('A', 'Z') as $ch) {
-    $PERCENT_ENCODED_STRINGS[ord($ch)] = $ch;
-  }
-
-      //0-9不编码
-  foreach (range('0', '9') as $ch) {
-    $PERCENT_ENCODED_STRINGS[ord($ch)] = $ch;
-  }
-
-      //以下4个字符不编码
-  $PERCENT_ENCODED_STRINGS[ord('-')] = '-';
-  $PERCENT_ENCODED_STRINGS[ord('.')] = '.';
-  $PERCENT_ENCODED_STRINGS[ord('_')] = '_';
-  $PERCENT_ENCODED_STRINGS[ord('~')] = '~';
   /**
   * 
   */
   class AuthSignSessionBase
   {
+
     protected $authorization = null;
     protected $signInfo = null;
     public function __construct($authorization = null, $signInfo = null)
     {
+      $this->method = strtoupper(empty($_SERVER['REQUEST_METHOD'])? 'GET' : $_SERVER['REQUEST_METHOD']);
       $this->authorization = trim($authorization) ;
       $this->signInfo = $signInfo ;
+      $this->authVersion = (isset($signInfo['authVersion']) && is_string($signInfo['authVersion'])) ? $signInfo['authVersion'] : '' ;
+      $this->signBaseHeaders = (isset($signInfo['header']) && is_array($signInfo['header'])) ? $signInfo['header'] : array() ;
+      $this->signBaseHeadersSys = (isset($this->signBaseHeaders['sys']) && is_array($this->signBaseHeaders['sys'])) ? $this->signBaseHeaders['sys'] : array() ;
+      $this->signBaseHeadersX = (isset($this->signBaseHeaders['x']) && is_array($this->signBaseHeaders['x'])) ? $this->signBaseHeaders['x'] : array() ;
+      $this->signBaseHeadersPrefix = (isset($this->signBaseHeaders['headersPrefix']) && is_string($this->signBaseHeaders['headersPrefix'])) ? $this->signBaseHeaders['headersPrefix'] : 'x-ddv-' ;
       // 检测基本数据
       $this->checkBaseData();
     }
@@ -72,17 +50,18 @@
     //在uri编码中不能对'/'编码
     public function urlEncodeExceptSlash($path)
     {
-      return str_replace("%2F", "/", self::urlEncode($path));
+      return DdvSign::urlEncodeExceptSlash($path);
     }
 
-      //使用编码数组编码
+    //使用编码数组编码
     public function urlEncode($value)
     {
-      $result = '';
-      for ($i = 0; $i < strlen($value); ++$i) {
-        $result .= $PERCENT_ENCODED_STRINGS[ord($value[$i])];
-      }
-      return $result;
+      return DdvSign::urlEncode($value);
+    }
+    //使用编码数组编码
+    public function urlDecode($value)
+    {
+      return DdvSign::urlDecode($value);
     }
   }
 

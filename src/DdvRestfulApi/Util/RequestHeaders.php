@@ -50,12 +50,13 @@ final class RequestHeaders
     if (!(empty(self::$header)||$isReload)) {
       return self::$header;
     }
+    $headersPrefix = str_replace('-','_',strtolower(self::$headersPrefix));
     $header = &self::$header;
+    $header['headersPrefix'] = self::$headersPrefix;
     $header['sys'] = array();
     $header['x'] = array();
     $header['authorization'] = '';
 
-    $headersPrefix = str_replace('-','_',strtolower(self::$headersPrefix));
     //所有headers参数传输的前缀
     $headersPrefixLen = strlen($headersPrefix);
 
