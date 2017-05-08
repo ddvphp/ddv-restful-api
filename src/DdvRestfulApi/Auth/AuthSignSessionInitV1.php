@@ -14,13 +14,15 @@
       try {
         // 试图旧授权信息
         $this->checkAuth();
-        //通过
-        $r['state'] = true;
-        //ok代表不需要更新客户端的会话数据，不回传密匙同时可以防止密匙泄漏
-        $r['type'] = 'ok';
-        //给客户端计算时差
-        $r['serverTime'] = time();
-        throw new AuthEchoException($r);
+        // 输出数据
+        throw new AuthEchoException(array(
+          // 通过
+          'state' => true,
+          // ok代表不需要更新客户端的会话数据，不回传密匙同时可以防止密匙泄漏
+          'type' => 'ok',
+          // 给客户端计算时差
+          'serverTime' => time()
+        ));
       } catch (AuthErrorException $e) {
         var_dump('不通过');
       }
@@ -47,10 +49,10 @@
       $data = $this->getAuthData($sessionId);
 
       if ($sessionCard!==$data['card']) {
-        throw new AuthErrorException('session card Error!','AUTHORIZATION_SESSION_CARD_NOT_SELF',403);
+        throw new AuthErrorException('session card Error!', 'AUTHORIZATION_SESSION_CARD_NOT_SELF', 403);
       }
       //授权字符串
-      $authString = "session-init-v1/{$requestId}/{$sessionId}/{$sessionCard}/{$signTimeString}/{$expiredTimeOffset}";
+      $authString = "{$this->authVersion}/{$requestId}/{$sessionId}/{$sessionCard}/{$signTimeString}/{$expiredTimeOffset}";
       //生成加密key
       $signingKey = hash_hmac('sha256', $authString, $data['key']);
 
@@ -61,7 +63,7 @@
       $serverSign = hash_hmac('sha256', $authString, $signingKey);
 
       if ($clientSign!==$serverSign) {
-        throw new AuthErrorException('session sign Error!','AUTHORIZATION_SESSION_SIGN_ERROR',403);
+        throw new AuthErrorException('session sign Error!', 'AUTHORIZATION_SESSION_SIGN_ERROR', 403);
       }
 
     }
@@ -72,7 +74,7 @@
       preg_match($this->regAuth, $this->authorization,$auths);
       // 
       if (count($auths)!==8) {
-        throw new AuthErrorException('Authentication Info Length Error','AUTHORIZATION_ERROR_INFO_LENGTH',403);
+        throw new AuthErrorException('Authentication Info Length Error', 'AUTHORIZATION_ERROR_INFO_LENGTH', 403);
       }elseif (empty($auths[0])) {
         //抛出授权信息格式异常
         throw new AuthErrorException('Authentication wrong format as content','AUTHORIZATION_ERROR_FORMAT_WRONG',403);
@@ -103,10 +105,10 @@
 
       if (time()>$expiredTime) {
         //抛出过期
-        throw new AuthErrorException('Request authorization expired!','AUTHORIZATION_REQUEST_EXPIRED',403);
+        throw new AuthErrorException('Request authorization expired!', 'AUTHORIZATION_REQUEST_EXPIRED', 403);
       }elseif (($signTime + $expiredTimeOffset) < time()) {
         //签名期限还没有到
-        throw new AuthErrorException('Request authorization has not yet entered into force!','AUTHORIZATION_REQUEST_NOT_ENABLE',403);
+        throw new AuthErrorException('Request authorization has not yet entered into force!', 'AUTHORIZATION_REQUEST_NOT_ENABLE', 403);
       }
       return array(
         // 请求id
