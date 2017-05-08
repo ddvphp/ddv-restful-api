@@ -1,6 +1,7 @@
 <?php 
   namespace DdvPhp\DdvRestfulApi\Auth;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
+  use \DdvPhp\DdvRestfulApi\Exception\AuthEcho as AuthEchoException;
   /**
   * 
   */
@@ -19,7 +20,7 @@
         $r['type'] = 'ok';
         //给客户端计算时差
         $r['serverTime'] = time();
-        return $r;
+        throw new AuthEchoException($r);
       } catch (AuthErrorException $e) {
         var_dump('不通过');
       }

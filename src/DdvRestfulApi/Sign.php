@@ -2,7 +2,6 @@
 
   namespace DdvPhp\DdvRestfulApi;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
-  use \DdvPhp\DdvRestfulApi\Exception\AuthEcho as AuthEchoException;
 
 
   /**
@@ -66,8 +65,7 @@
       // 回收部分变量
       unset($authorization, $v, $a2, $className, $file, $signInfo);
       // 签名
-      $sign = $authObj->runSign();
-      throw new AuthEchoException($sign);
+     $authObj->runSign();
       
     }
     public static function urlEncodeInit()
