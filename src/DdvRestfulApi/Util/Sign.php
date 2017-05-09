@@ -42,7 +42,7 @@
         throw new AuthErrorException('Authentication Info Error', 'AUTHENTICATION_INFO_ERROR', '403');
       }
       $className = 'AuthSign'.ucfirst(preg_replace_callback(
-        '(\-\w)', 
+        '(\-\w)',
         function ($matches) {
           return strtoupper(substr($matches[0], 1));
         },
