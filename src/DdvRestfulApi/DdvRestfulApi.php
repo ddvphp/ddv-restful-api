@@ -22,17 +22,29 @@
   {
     private static $ddvRestfulApiObj = null;//属性值为对象,默认为null
     //app请求标识
-    protected $headersPrefix = 'x-ddv-' ;
+    protected $headersPrefix = '' ;
     //签名信息
     protected $signInfo = null;
+    protected $config = array(
+      'headersPrefix'=>'x-ddv-',
+      'cors'=>array()
+    );
 
 
     protected function __construct ($config = null)
     {
-      $config = is_array($config)?$config:array();
-      if (isset($config['headersPrefix'])) {
-        $this->setHeadersPrefix($config['headersPrefix']);
+      $headersPrefix = &$this->config['headersPrefix'];
+      $this->config($config);
+    }
+    public function config($config = null)
+    {
+      if (!is_array($config)) {
+        return $this->config;
       }
+      foreach ($config as $key => $value) {
+        $this->config[$key] = $value;
+      }
+      return $this;
     }
     /**
      * [onHandler 监听错误]
@@ -94,7 +106,12 @@
     // 授权模块
     public function initCors ($config=array())
     {
-      return CorsException::init($config);
+      if (is_array($config)) {
+        foreach ($config as $key => $value) {
+          $this->config['cors'][$key] = $value;
+        }
+      }
+      return CorsException::init($this->config['cors']);
     }
     // 授权模块
     public function authSign ()
@@ -121,10 +138,6 @@
     //获取头信息
     public function getHeadersPrefix(){
       return RequestHeaders::getHeadersPrefix();
-    }
-    //设置头信息
-    public function setHeadersPrefix($headersPrefix = null){
-      return RequestHeaders::setHeadersPrefix($headersPrefix);
     }
     //获取头信息
     public function getHttpHeaders($isReload = false){
