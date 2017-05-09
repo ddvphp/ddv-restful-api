@@ -1,6 +1,6 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi;
+  namespace DdvPhp\DdvRestfulApi\Util;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
 
@@ -48,7 +48,7 @@
         },
         $v
       ));
-      $file = dirname(__FILE__) . '/Auth/'.$className.'.php';
+      $file = dirname(__FILE__) . '/../Auth/'.$className.'.php';
       // 判断是否存在该文件
       if (!is_file($file)) {
         throw new AuthErrorException('Authentication Version File Not Find', 'AUTHENTICATION_VERSION_FILE_NOT_FIND', '403');

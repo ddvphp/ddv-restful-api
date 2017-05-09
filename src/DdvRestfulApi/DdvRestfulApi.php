@@ -5,8 +5,8 @@
   use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
   use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
-  use \DdvPhp\DdvRestfulApi\Sign as DdvSign;
-  use \DdvPhp\DdvRestfulApi\Cors as CorsException;
+  use \DdvPhp\DdvRestfulApi\Util\Sign as DdvSign;
+  use \DdvPhp\DdvRestfulApi\Util\Cors as CorsException;
   use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
 

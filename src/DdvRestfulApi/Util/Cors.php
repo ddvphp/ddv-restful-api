@@ -1,6 +1,6 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi;
+  namespace DdvPhp\DdvRestfulApi\Util;
 
 use \DdvPhp\DdvRestfulApi\Exception\Cors as CorsException;
 use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;

@@ -1,6 +1,6 @@
 <?php 
   namespace DdvPhp\DdvRestfulApi\Auth;
-  use \DdvPhp\DdvRestfulApi\Sign as DdvSign;
+  use \DdvPhp\DdvRestfulApi\Util\Sign as DdvSign;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
   /**
