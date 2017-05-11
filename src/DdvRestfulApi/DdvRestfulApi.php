@@ -25,6 +25,7 @@
     protected $headersPrefix = '' ;
     //签名信息
     protected $signInfo = null;
+    protected $authSignRun = false ;
     protected $config = array(
       'headersPrefix'=>'x-ddv-',
       'cors'=>array()
@@ -120,7 +121,10 @@
     // 授权模块
     public function authSign ()
     {
-      $this->signInfo = DdvSign::sign($this->requestParse());
+      if (!$this->authSignRun) {
+        $this->authSignRun = true;
+        $this->signInfo = DdvSign::sign($this->requestParse());
+      }
       return $this->signInfo;
     }
     // 获取实例化对象
