@@ -74,7 +74,11 @@
       ResponseParse::echoStr($r);
     }
     public function isDevelopment(){
-      return defined('ENVIRONMENT') && ENVIRONMENT==='development';
+      if(function_exists('env')){
+        return env('APP_DEBUG', false);
+      }else{
+        return defined('APP_DEBUG') && ENVIRONMENT==='development';
+      }
     }
     /**
      * [setHandler 输出]
