@@ -25,7 +25,7 @@ final class RequestHeaders
   }
   //获取头信息
   public static function getHttpHeaders($isReload = false){
-    $headers = self::getHttpHeadersAsSysXAuth($isReload = false);
+    $headers = self::getHttpHeadersAsSysXAuth($isReload);
     return array_merge(
       array('authorization' => $headers['authorization']),
       $headers['sys'],
@@ -34,15 +34,15 @@ final class RequestHeaders
   }
   //获取头信息[授权的]
   public static function getHttpHeadersAuth($isReload = false){
-    return self::getHttpHeadersAsSysXAuth($isReload = false)['authorization'];
+    return self::getHttpHeadersAsSysXAuth($isReload)['authorization'];
   }
   //获取头信息[自定义]
   public static function getHttpHeadersX($isReload = false){
-    return self::getHttpHeadersAsSysXAuth($isReload = false)['x'];
+    return self::getHttpHeadersAsSysXAuth($isReload)['x'];
   }
   //获取头信息[系统]
   public static function getHttpHeadersSys($isReload = false){
-    return self::getHttpHeadersAsSysXAuth($isReload = false)['sys'];
+    return self::getHttpHeadersAsSysXAuth($isReload)['sys'];
   }
   //获取签名信息
   public static function getHttpHeadersAsSysXAuth($isReload = false){
