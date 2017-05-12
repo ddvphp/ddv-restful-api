@@ -9,6 +9,8 @@
   {
     private $regAuth = 
       '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/([\d]+)\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([\da-f]{64})$/i';
+    private $regSessionId = '/^([0-9a-zA-Z,-]+)$/i';
+    private $regRequestId = '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})$/i';
     protected function sign()
     {
       try {
@@ -24,8 +26,68 @@
           'serverTime' => time()
         ));
       } catch (AuthErrorException $e) {
-        var_dump('不通过');
+        throw new AuthEchoException($this->createAuthData());
       }
+    }
+    private function createAuthData()
+    {
+      list(
+        // 请求id
+        $requestId,
+        // 会话id
+        $sessionId,
+        // 设备id
+        $sessionCard,
+        // 签名时间
+        $signTimeString,
+        // 过期时间
+        $expiredTimeOffset,
+        // 干扰码
+        $interference,
+        // 客户端签名
+        $clientSign
+      ) = explode('/', trim($this->authorization));
+
+      //检查请求id
+      if (empty($requestId) || !preg_match($this->regRequestId, $requestId)) {
+        throw new AuthErrorException('Authentication session_request_id format Error','AUTHORIZATION_ERROR_FORMAT_REQUEST_ID',403);
+      }
+      //检查card_id
+      if (empty($sessionCard) || !$this->isSessionCard($sessionCard)) {
+        $sessionCard = $this->createSessionCard();
+      }
+      //检查sessionId
+      if ((!empty($sessionId)) && preg_match($this->regSessionId, $sessionId)) {
+        // 授权数据
+        $data = $this->getAuthData($sessionId);
+      }else{
+        $sessionId = md5(mt_rand(9,10));
+      }
+      $data = isset($data) && is_array($data) ? $data : array();
+
+      if ($sessionCard!==$data['card']) {
+        $sessionId = md5(mt_rand(9,10));
+        $data['card'] = $sessionCard;
+        $data['key'] = $this->createSessionKey($data['card']);
+      }
+      $data['key'] = empty($data['key']) ? $this->createSessionKey($data['card']) : $data['key'];
+
+      $this->saveAuthData($sessionId, $data);
+      return array(
+        // 通过
+        'state' => true,
+        // ok代表不需要更新客户端的会话数据，不回传密匙同时可以防止密匙泄漏
+        'type' => 'update',
+        // 给客户端计算时差
+        'serverTime' => time(),
+        'session_data' => array(
+          'session_prefix' => $this->signBaseHeadersPrefix,
+          'session_id' => $sessionId,
+          'session_card' => $data['card'],
+          'session_key' => $data['key'],
+          'server_time' => (string)time()
+        )
+      );
     }
     private function checkAuth()
     {
@@ -47,6 +109,9 @@
       ) = $this->parseAuth();
       // 授权数据
       $data = $this->getAuthData($sessionId);
+      if (empty($data)) {
+        throw new AuthErrorException('Auth data does not exist!', 'AUTH_DATA_DOES_NOT_EXIST', 403);
+      }
 
       if ($sessionCard!==$data['card']) {
         throw new AuthErrorException('session card Error!', 'AUTHORIZATION_SESSION_CARD_NOT_SELF', 403);
