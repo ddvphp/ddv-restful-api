@@ -2,6 +2,8 @@
 namespace DdvPhp\DdvRestfulApi\AuthData;
 
 interface AuthDataHandlerInterface {
+
+
   public function open($authDataDriverConfig);
   public function close();
   public function read($sessionId);
