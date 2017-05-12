@@ -65,13 +65,15 @@
       }
       $data = isset($data) && is_array($data) ? $data : array();
 
-      if ($sessionCard!==$data['card']) {
+      if (empty($data['card'])||$sessionCard!==$data['card']) {
         $sessionId = md5(mt_rand(9,10));
         $data['card'] = $sessionCard;
         $data['key'] = $this->createSessionKey($data['card']);
       }
       $data['key'] = empty($data['key']) ? $this->createSessionKey($data['card']) : $data['key'];
-
+      var_dump(22444421);
+      $this->getAuthData($sessionId);
+      var_dump(2244442);
       $this->saveAuthData($sessionId, $data);
       return array(
         // 通过
