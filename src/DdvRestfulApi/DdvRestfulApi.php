@@ -20,12 +20,13 @@
    */
   class DdvRestfulApi
   {
-    //返回数组
+    // 属性值为对象,默认为null
+    private static $ddvRestfulApiObj = null;
+    // 返回数组
     public $responseData = array();
-    private static $ddvRestfulApiObj = null;//属性值为对象,默认为null
-    //app请求标识
+    // app请求标识
     protected $headersPrefix = '' ;
-    //签名信息
+    // 签名信息
     protected $signInfo = null;
     protected $authSignRun = false ;
     protected $config = array(
@@ -67,7 +68,7 @@
         //消息
         'message'=>'',
         //代码
-        'code'=>500
+        'code'=>0
       );
     }
     public function config($config = null)
@@ -133,7 +134,7 @@
     {
       $responseData = array(
         'statusCode'=>404,
-        'code'=>'404',
+        'code'=>0,
         'errorId'=>'404 Not Found',
         'message'=>'Api interface not found'
       );
