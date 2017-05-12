@@ -20,6 +20,8 @@
    */
   class DdvRestfulApi
   {
+    //返回数组
+    public $responseData = array();
     private static $ddvRestfulApiObj = null;//属性值为对象,默认为null
     //app请求标识
     protected $headersPrefix = '' ;
@@ -36,6 +38,37 @@
     {
       $headersPrefix = &$this->config['headersPrefix'];
       $this->config($config);
+      $this->responseDataInit();
+    }
+    public function responseDataInit($config = null)
+    {
+      $this->responseData = array(
+        //系统数据，前端开发一般不做理会，用于系统框架
+        'sysdata'=>array(
+          //请求id
+          'request_id'=>'',
+          //强制刷新浏览器
+          'reload'=>false,
+          //强制跳转到以下url,如果url返回的不是空字符串就跳转
+          'url'=>'',
+          //uid默认是0
+          'uid'=>'0',
+          //是否已经登陆
+          'is_login'=>false,
+          //跳转到登陆
+          'to_login'=>false,
+          //签名是否通过
+          'is_sign'=>false,
+          //服务器签名返回
+          'session_sign'=>''
+        ),
+        //错误识别码
+        'errorId'=>'OK',
+        //消息
+        'message'=>'',
+        //代码
+        'code'=>500
+      );
     }
     public function config($config = null)
     {
@@ -82,11 +115,36 @@
       }
     }
     /**
+     * [echoData 输出]
+     * @author: 桦 <yuchonghua@163.com>
+     * @DateTime 2017-04-26T18:56:12+0800
+     */
+    public function echoData($data)
+    {
+      $data = array_merge($this->responseData, $data);
+      return $this->echoStr($data);
+    }
+    /**
+     * [echo404 输出]
+     * @author: 桦 <yuchonghua@163.com>
+     * @DateTime 2017-04-26T18:56:12+0800
+     */
+    public function echo404()
+    {
+      $responseData = array(
+        'statusCode'=>404,
+        'code'=>'404',
+        'errorId'=>'404 Not Found',
+        'message'=>'Api interface not found'
+      );
+      return $this->echoData($responseData);
+    }
+    /**
      * [setHandler 输出]
      * @author: 桦 <yuchonghua@163.com>
      * @DateTime 2017-04-26T18:56:12+0800
      */
-    public static function echoStr($e)
+    public function echoStr($e)
     {
       return ResponseParse::echoStr($e);
     }
