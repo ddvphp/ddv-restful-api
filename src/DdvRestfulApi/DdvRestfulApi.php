@@ -109,12 +109,9 @@
       ResponseParse::echoStr($r);
     }
     public function isDevelopment(){
-      if(defined('ENVIRONMENT')){
-        return ENVIRONMENT==='development';
-      }else if(function_exists('env')){
-        return env('APP_DEBUG', false);
-      }
-      return false;
+      $isDebug = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
+      $isDebug = $isDebug && function_exists('env') && env('APP_DEBUG');
+      return $isDebug;
     }
     /**
      * [echoData 输出]
