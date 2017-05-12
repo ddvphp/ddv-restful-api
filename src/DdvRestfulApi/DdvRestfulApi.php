@@ -10,7 +10,6 @@
   use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
 
-
   /**
    * Class DdvRestfulApi
    *
@@ -192,7 +191,21 @@
     // 获取实例化对象
     public static function getDdvRestfulApi($config = array(), $class = null)
     {
-      $class = empty($class)? get_called_class() : $class ;
+      // 第二个参数提前到第一个参数
+      if (is_null($class) && is_string($config)) {
+        $class = $config;
+        $config = array();
+      }
+      // 判断是否实例化过
+      if (newClassNameSaveByStaticClass::$className) {
+        // 直接使用第一次实例化的类名
+        $class = newClassNameSaveByStaticClass::$className ;
+      }else{
+        // 试图获取类名
+        $class = empty($class)? get_called_class() : $class ;
+        // 存储类名
+        newClassNameSaveByStaticClass::$className = newClassNameSaveByStaticClass::$className;
+      }
       if (self::$ddvRestfulApiObj === null) {
         //实例化一个单例对象
         self::$ddvRestfulApiObj = empty($class)?(new self($config)):(new $class($config));
@@ -232,4 +245,11 @@
       $uuid = substr($charid, 0, 8).$hyphen.substr($charid, 8, 4).$hyphen.substr($charid,12, 4).$hyphen.substr($charid,16, 4).$hyphen.substr($charid,20,12);
       return $uuid;
     }
+  }
+  /**
+  * 
+  */
+  class newClassNameSaveByStaticClass
+  {
+    public static $className = null;
   }
