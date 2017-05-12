@@ -43,25 +43,6 @@
     public function responseDataInit($config = null)
     {
       $this->responseData = array(
-        //系统数据，前端开发一般不做理会，用于系统框架
-        'sysdata'=>array(
-          //请求id
-          'request_id'=>'',
-          //强制刷新浏览器
-          'reload'=>false,
-          //强制跳转到以下url,如果url返回的不是空字符串就跳转
-          'url'=>'',
-          //uid默认是0
-          'uid'=>'0',
-          //是否已经登陆
-          'is_login'=>false,
-          //跳转到登陆
-          'to_login'=>false,
-          //签名是否通过
-          'is_sign'=>false,
-          //服务器签名返回
-          'session_sign'=>''
-        ),
         //错误识别码
         'errorId'=>'OK',
         //消息
