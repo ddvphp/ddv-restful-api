@@ -15,11 +15,27 @@
   {
 
     public static $PERCENT_ENCODED_STRINGS = array();
-    public static function sign($signInfo)
+    public static function sign(&$signInfo, &$config)
     {
       if (empty($signInfo['header'])) {
         throw new AuthErrorException('get header fail', 'GET_HEADER_FAIL', '403');
       }
+
+      if (empty($config['authDataDriver'])) {
+        throw new AuthErrorException('config authDataDriver can not empty', 'AUTHDATADRIVER_CONFIG_EMPTY', '500');
+      }
+      // 默认是这种模式查找
+      $authDataDriver = $config['authDataDriver'];
+      if (!class_exists($authDataDriver)) {
+        $authDataDriver = '\DdvPhp\DdvRestfulApi\AuthData\AuthData'.ucfirst($config['authDataDriver']).'Driver';
+      }
+      if (!class_exists($authDataDriver)) {
+        $authDataDriver = '\\'.$config['authDataDriver'];
+      }
+      if (!class_exists($authDataDriver)) {
+        throw new AuthErrorException('authDataDriver Class Not Find', 'AUTHDATADRIVER_CLASS_NOT_FIND', '500');
+      }
+
       // 获取授权信息
       $authorization = trim($signInfo['header']['authorization']);
       //试图查找/，判断是否是合法的授权信息
@@ -61,7 +77,7 @@
         throw new AuthErrorException('Authentication Version Class Not Find', 'AUTHENTICATION_VERSION_CLASS_NOT_FIND', '403');
       }
       // 实例化该文件
-      $authObj = new $className($a2, $signInfo);
+      $authObj = new $className($a2, $signInfo, $config, $authDataDriver);
       // 回收部分变量
       unset($authorization, $v, $a2, $className, $file, $signInfo);
       // 签名

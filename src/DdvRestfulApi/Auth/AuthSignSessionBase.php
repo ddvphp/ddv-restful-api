@@ -9,13 +9,21 @@
   class AuthSignSessionBase
   {
 
+    protected $authDataDriverObj = null;
     protected $authorization = null;
     protected $signInfo = null;
-    public function __construct($authorization = null, $signInfo = null)
+    public function __construct(&$authorization, &$signInfo, &$config, &$authDataDriver)
     {
+
+      $this->authDataDriverObj = new $authDataDriver();
+      // 打开连接
+      $this->authDataDriverObj->open($config['authDataDriverConfig']);
+
       $this->method = strtoupper(empty($_SERVER['REQUEST_METHOD'])? 'GET' : $_SERVER['REQUEST_METHOD']);
       $this->authorization = trim($authorization) ;
-      $this->signInfo = $signInfo ;
+      $this->signInfo = &$signInfo ;
+      $this->config = &$config ;
+      $this->authDataDriver = &$authDataDriver ;
       $this->authVersion = (isset($signInfo['authVersion']) && is_string($signInfo['authVersion'])) ? $signInfo['authVersion'] : '' ;
       $this->signBaseHeaders = (isset($signInfo['header']) && is_array($signInfo['header'])) ? $signInfo['header'] : array() ;
       $this->signBaseHeadersSys = (isset($this->signBaseHeaders['sys']) && is_array($this->signBaseHeaders['sys'])) ? $this->signBaseHeaders['sys'] : array() ;
@@ -35,10 +43,9 @@
     }
     protected function getAuthData($sessionId)
     {
-      return array(
-        'card'=>'ed9a-d251b2e6-48c3-9c08-e426-ed15398ac305-73624bb2',
-        'key'=>'c4ba-ae8878c1641b-270a-073bb98e-cc54-1590-2a48-79a304e5a6cb-9dda07f2-1d03eef14b56-29d0-5a14db07-abf6'
-      );
+      // 打开连接
+      $res = $this->authDataDriverObj->read($sessionId);
+      return unserialize($res);
     }
 
     //在uri编码中不能对'/'编码

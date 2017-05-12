@@ -29,7 +29,9 @@
     protected $signInfo = null;
     protected $authSignRun = false ;
     protected $config = array(
+      'authDataDriver'=>'file',
       'headersPrefix'=>'x-ddv-',
+      'authDataDriverConfig'=>array(),
       'cors'=>array()
     );
 
@@ -160,7 +162,8 @@
     {
       if (!$this->authSignRun) {
         $this->authSignRun = true;
-        $this->signInfo = DdvSign::sign($this->requestParse());
+        $this->requestParse();
+        DdvSign::sign($this->signInfo, $this->config);
       }
       return $this->signInfo;
     }

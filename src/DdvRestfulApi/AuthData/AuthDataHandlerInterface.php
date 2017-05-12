@@ -1,8 +1,8 @@
 <?php 
-  namespace DdvPhp\DdvRestfulApi\AuthData;
+namespace DdvPhp\DdvRestfulApi\AuthData;
 
 interface AuthDataHandlerInterface {
-  public function open($savePath, $name);
+  public function open($authDataDriverConfig);
   public function close();
   public function read($sessionId);
   public function write($sessionId, $authData);
