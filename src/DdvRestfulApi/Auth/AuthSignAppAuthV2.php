@@ -163,7 +163,7 @@
       }
       //检测是否还有没有签名的自定义头
       if (!empty($signBaseHeadersX)) {
-        throw new AuthErrorException('The following header information you have not authenticated['. implode(',',$headers_x).']','AUTHORIZATION_HEADERS_X_NOT_ALL_SIGNATURES',403);
+        throw new AuthErrorException('The following header information you have not authenticated['. implode(',',$signBaseHeadersX).']','AUTHORIZATION_HEADERS_X_NOT_ALL_SIGNATURES',403);
       }
       if (isset($signBaseHeadersSys['content-length'])&&intval($signBaseHeadersSys['content-length'])==0) {
         unset($signBaseHeadersSys['content-md5'], $signBaseHeadersSys['content-type'], $signBaseHeadersSys['content-length']);
