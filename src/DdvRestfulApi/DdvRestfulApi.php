@@ -109,11 +109,12 @@
       ResponseParse::echoStr($r);
     }
     public function isDevelopment(){
-      if(function_exists('env')){
+      if(defined('ENVIRONMENT')){
+        return ENVIRONMENT==='development';
+      }else if(function_exists('env')){
         return env('APP_DEBUG', false);
-      }else{
-        return defined('APP_DEBUG') && ENVIRONMENT==='development';
       }
+      return false;
     }
     /**
      * [echoData 输出]
