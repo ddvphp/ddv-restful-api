@@ -110,7 +110,7 @@
     }
     public function isDevelopment(){
       $isDebug = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
-      $isDebug = $isDebug && function_exists('env') && env('APP_DEBUG');
+      $isDebug = $isDebug || function_exists('env') && env('APP_DEBUG');
       return $isDebug;
     }
     /**
