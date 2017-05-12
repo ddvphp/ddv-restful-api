@@ -197,15 +197,11 @@
         $config = array();
       }
       // 判断是否实例化过
-      if (newClassNameSaveByStaticClass::$className) {
+      if (empty(newClassNameSaveByStaticClass::$className)) {
         // 直接使用第一次实例化的类名
-        $class = newClassNameSaveByStaticClass::$className ;
-      }else{
-        // 试图获取类名
-        $class = empty($class)? get_called_class() : $class ;
-        // 存储类名
-        newClassNameSaveByStaticClass::$className = newClassNameSaveByStaticClass::$className;
+        newClassNameSaveByStaticClass::$className = empty($class)? get_called_class() : $class ;
       }
+      $class = newClassNameSaveByStaticClass::$className ;
       if (self::$ddvRestfulApiObj === null) {
         //实例化一个单例对象
         self::$ddvRestfulApiObj = empty($class)?(new self($config)):(new $class($config));
