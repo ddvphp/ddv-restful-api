@@ -9,6 +9,7 @@
   class AuthSignSessionBase
   {
 
+    protected $authDatas = array();
     protected $authDataDriverObj = null;
     protected $authorization = null;
     protected $signInfo = null;
@@ -42,20 +43,6 @@
       if (!$this->signInfo) {
         throw new AuthErrorException('Authentication Sign Info Empty Error', 'AUTHENTICATION_SIGN_INFO_EMPTY_ERROR', '403');
       }
-    }
-    protected function getAuthData($sessionId)
-    {
-      // 读取数据
-      $res = $this->authDataDriverObj()->read($sessionId);
-      // 反序列化并且返回
-      return empty($res) ? null : unserialize($res);
-    }
-    protected function saveAuthData($sessionId, $data = null)
-    {
-      // 序列化数组
-      $res = serialize($data);
-      // 保存数据
-      $res = $this->authDataDriverObj()->write($sessionId, $res);
     }
 
     //在uri编码中不能对'/'编码
@@ -117,6 +104,33 @@
           .'-'.substr(md5($ua.mt_rand().$ua.$session_card),7,4)
         );
       return $session_key;
+    }
+
+    public function createSessionId(){
+      $sessionId = md5(mt_rand(9,10));
+      if ($this->getAuthData($sessionId)!==null) {
+        return $this->createSessionId();
+      }
+      return $sessionId;
+    }
+    protected function getAuthData($sessionId)
+    {
+      if (isset($authDatas[$sessionId])) {
+        return $authDatas[$sessionId];
+      }
+      // 读取数据
+      $res = $this->authDataDriverObj()->read($sessionId);
+      // 反序列化并且返回
+      $authDatas[$sessionId] = empty($res) ? null : unserialize($res);
+      return $authDatas[$sessionId];
+    }
+    protected function saveAuthData($sessionId, $data = null)
+    {
+      $authDatas[$sessionId] = $data;
+      // 序列化数组
+      $res = serialize($data);
+      // 保存数据
+      $res = $this->authDataDriverObj()->write($sessionId, $res);
     }
 
     public function authDataDriverObj(){
