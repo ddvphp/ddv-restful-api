@@ -25,6 +25,8 @@ implements \DdvPhp\DdvRestfulApi\AuthData\AuthDataHandlerInterface
   }
   public function open($authDataDriverConfig = null)
   {
+    var_dump('打开操作');
+    $authDataDriverConfig = $this->_file_path = dirname(__FILE__).'/xxx/';
     if ( ! is_dir($authDataDriverConfig))
     {
       if ( ! mkdir($authDataDriverConfig, 0700, TRUE))
@@ -80,7 +82,7 @@ implements \DdvPhp\DdvRestfulApi\AuthData\AuthDataHandlerInterface
     }
 
       $session_data = '';
-      for ($read = 0, $length = filesize($this->_file_path . $sessionId); $read < $length; $read += self::strlen($buffer)) {
+      for ($read = 0, $length = @filesize($this->_file_path . $sessionId); $read < $length; $read += self::strlen($buffer)) {
           if (($buffer = fread($this->_file_handle, $length - $read)) === FALSE) {
             break;
           }
@@ -99,7 +101,7 @@ implements \DdvPhp\DdvRestfulApi\AuthData\AuthDataHandlerInterface
   {
     // If the two IDs don't match, we have a session_regenerate_id() call
     // and we need to close the old handle and open a new one
-    if ($sessionId !== $this->_session_id && ($this->close() === $this->_failure OR $this->read($session_id) === $this->_failure))
+    if ($sessionId !== $this->_session_id && ($this->close() === $this->_failure OR $this->read($sessionId) === $this->_failure))
     {
       return $this->_failure;
     }
@@ -143,6 +145,7 @@ implements \DdvPhp\DdvRestfulApi\AuthData\AuthDataHandlerInterface
   }
   public function close()
   {
+    var_dump('关闭操作');
     //判断是否为资源类型,如果是释放文件锁
     if (is_resource($this->_file_handle))
     {

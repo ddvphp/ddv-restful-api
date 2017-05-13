@@ -13,12 +13,13 @@
     protected $authorization = null;
     protected $signInfo = null;
     protected $regSessionCard = '/^([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})$/i';
+    public function __destruct()
+    {
+      $this->authDataDriverClose();
+    }
     public function __construct(&$authorization, &$signInfo, &$config, &$authDataDriver)
     {
 
-      $this->authDataDriverObj = new $authDataDriver();
-      // 打开连接
-      $this->authDataDriverObj->open($config['authDataDriverConfig']);
 
       $this->method = strtoupper(empty($_SERVER['REQUEST_METHOD'])? 'GET' : $_SERVER['REQUEST_METHOD']);
       $this->authorization = trim($authorization) ;
@@ -45,7 +46,7 @@
     protected function getAuthData($sessionId)
     {
       // 读取数据
-      $res = $this->authDataDriverObj->read($sessionId);
+      $res = $this->authDataDriverObj()->read($sessionId);
       // 反序列化并且返回
       return empty($res) ? null : unserialize($res);
     }
@@ -54,13 +55,18 @@
       // 序列化数组
       $res = serialize($data);
       // 保存数据
-      $res = $this->authDataDriverObj->write($sessionId, $res);
+      $res = $this->authDataDriverObj()->write($sessionId, $res);
     }
 
     //在uri编码中不能对'/'编码
     public function runSign()
     {
-      return $this->sign();
+      try {
+        return $this->sign();
+      } catch (Exception $e) {
+        $this->_sysClose();
+        throw new $e;
+      }
     }
 
     //在uri编码中不能对'/'编码
@@ -111,6 +117,25 @@
           .'-'.substr(md5($ua.mt_rand().$ua.$session_card),7,4)
         );
       return $session_key;
+    }
+
+    public function authDataDriverObj(){
+      if ($this->authDataDriverObj && method_exists($this->authDataDriverObj, 'close')) {
+        return $this->authDataDriverObj;
+      }
+      $this->authDataDriverObj = new $this->authDataDriver();
+      // 打开连接
+      $this->authDataDriverObj->open($this->config['authDataDriverConfig']);
+      return $this->authDataDriverObj;
+    }
+    public function authDataDriverClose(){
+      if (!($this->authDataDriverObj && method_exists($this->authDataDriverObj, 'close'))) {
+        return;
+      }
+      var_dump('xddd');
+      // 打开连接
+      $this->authDataDriverObj->close();
+      $this->authDataDriverObj = null;
     }
   }
 

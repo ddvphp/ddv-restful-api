@@ -31,6 +31,16 @@ abstract class AuthDataDriver implements \DdvPhp\DdvRestfulApi\AuthData\AuthData
   public function __construct()
   {
 
+    if (is_php('7'))
+    {
+      $this->_success = TRUE;
+      $this->_failure = FALSE;
+    }
+    else
+    {
+      $this->_success = 0;
+      $this->_failure = -1;
+    }
   }
 
   protected function _cookie_destroy()
