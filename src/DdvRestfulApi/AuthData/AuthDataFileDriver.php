@@ -146,6 +146,7 @@ implements \DdvPhp\DdvRestfulApi\AuthData\AuthDataHandlerInterface
   public function close()
   {
     var_dump('关闭操作');
+
     //判断是否为资源类型,如果是释放文件锁
     if (is_resource($this->_file_handle))
     {
