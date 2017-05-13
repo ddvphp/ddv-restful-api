@@ -132,7 +132,6 @@
       if (!($this->authDataDriverObj && method_exists($this->authDataDriverObj, 'close'))) {
         return;
       }
-      var_dump('xddd');
       // 打开连接
       $this->authDataDriverObj->close();
       $this->authDataDriverObj = null;
