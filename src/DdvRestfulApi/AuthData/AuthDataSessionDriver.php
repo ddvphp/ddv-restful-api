@@ -31,7 +31,7 @@ class AuthDataSessionDriver extends \DdvPhp\DdvRestfulApi\AuthData\AuthDataDrive
     @session_start();
     $authData = isset($_SESSION['__ddvAuthData__']) ? $_SESSION['__ddvAuthData__'] : null;
     //关闭会话
-    @session_write_close();
+    function_exists('session_abort') ? @session_abort() : @session_write_close();
     //清除数据
     @session_unset();
     //清理头
@@ -53,7 +53,7 @@ class AuthDataSessionDriver extends \DdvPhp\DdvRestfulApi\AuthData\AuthDataDrive
     $sessionIdOld = @session_id();
     $sessionDataOld = empty($_SESSION)?null:$_SESSION;
     //关闭会话
-    @session_write_close();
+    function_exists('session_abort') ? @session_abort() : @session_write_close();
     //清除数据
     @session_unset();
     //空会话

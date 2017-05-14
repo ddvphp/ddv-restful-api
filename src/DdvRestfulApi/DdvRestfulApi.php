@@ -157,6 +157,11 @@
       }
       return CorsException::init($this->config['cors']);
     }
+    // getSessionId
+    public function getSessionId ()
+    {
+      return $this->signInfo['sessionId'];
+    }
     // 授权模块
     public function authSign ()
     {

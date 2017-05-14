@@ -107,7 +107,11 @@
     }
 
     public function createSessionId(){
-      $sessionId = md5(mt_rand(9,10));
+
+      $encoded = base64_encode(ini_get('session.sid_length')*2);
+      // Use same charset as PHP
+      $sessionId = substr(rtrim(strtr($encoded, '+/', ',-'), '='), 0, ini_get('session.sid_length'));
+      // $sessionId = md5(mt_rand(1,100));
       if ($this->getAuthData($sessionId)!==null) {
         return $this->createSessionId();
       }

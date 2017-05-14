@@ -84,6 +84,7 @@
         $errorData['debugSign']['sessionSignCheck'] = $sessionSignCheck;
         throw new AuthErrorException('Signature authentication failure', 'AUTHORIZATION_SIGNATURE_FAILURE', 403, $errorData);
       }
+      $this->signInfo['sessionId'] = $sessionId;
       return true;
     }
     private function getCanonicalHeaders($signHeaders = array())

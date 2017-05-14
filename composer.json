@@ -4,9 +4,13 @@
 	"version": "0.0.1",
 	"minimum-stability":"beta",
 	"require": {
-		"php": ">=5.3"
+		"php": ">=5.3",
+		"paragonie/random_compat": "^2.0"
 	},
 	"require-dev": {
+	},
+	"suggest": {
+		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
 	},
 	"autoload": {
 		"psr-4": {
