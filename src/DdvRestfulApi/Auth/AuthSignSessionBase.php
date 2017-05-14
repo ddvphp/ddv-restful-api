@@ -123,7 +123,7 @@
       }
       $sessionId .= substr(rtrim(strtr($randomSid, '+/', ',-'), '='), 0, $sidLength-($sidLength>12?12:0));
       $sessionId = substr($randomSid, 0, $sidLength);
-      // $sessionId = md5(mt_rand(1,100));
+
       if ($this->getAuthData($sessionId)!==null) {
         return $this->createSessionId();
       }
