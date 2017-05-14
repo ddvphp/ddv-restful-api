@@ -107,10 +107,22 @@
     }
 
     public function createSessionId(){
-
-      $encoded = base64_encode(ini_get('session.sid_length')*2);
+      $sidLength = @ini_get('session.sid_length');
+      $sidLength = !isset($sidLength) || intval($sidLength) <= 8 ? 32 : $sidLength;
+      $randomSid = bin2hex(random_bytes($sidLength));
       // Use same charset as PHP
-      $sessionId = substr(rtrim(strtr($encoded, '+/', ',-'), '='), 0, ini_get('session.sid_length'));
+      $sessionId = '';
+      if (!$sidLength>12) {
+        $pp = isset($_SERVER['REMOTE_ADDR'])? $_SERVER['REMOTE_ADDR'] : microtime();
+        $pp .= isset($_SERVER['HTTP_CLIENT_IP'])? $_SERVER['HTTP_CLIENT_IP'] : microtime();
+        $pp .= isset($_SERVER['HTTP_X_FORWARDED_FOR'])? $_SERVER['HTTP_X_FORWARDED_FOR'] : microtime();
+        $sessionId = substr(md5(microtime().$pp.mt_rand().$this->createGuid()), 0, 3);
+        $sessionId .= substr(md5($pp.microtime().mt_rand().$sidLength.$randomSid), 0, 3);
+        $sessionId .= substr(md5(microtime().$pp.mt_rand().$pp.$this->createSessionKey().$sessionId), 0, 3);
+        $sessionId .= substr(md5(microtime().$sessionId.mt_rand().$pp.$randomSid), 0, 3);
+      }
+      $sessionId .= substr(rtrim(strtr($randomSid, '+/', ',-'), '='), 0, $sidLength-($sidLength>12?12:0));
+      $sessionId = substr($randomSid, 0, $sidLength);
       // $sessionId = md5(mt_rand(1,100));
       if ($this->getAuthData($sessionId)!==null) {
         return $this->createSessionId();
