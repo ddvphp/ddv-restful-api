@@ -153,7 +153,10 @@
           }else{
             //如果没法直接获取就加http_试试，因为php的特殊性
             $authHeaderKey = 'HTTP_'.strtoupper($authHeaderKey);
-            if (isset($_SERVER[$authHeaderKey])) {
+            if(isset($signBaseHeadersSys[$signHeaderKeys[$i]])){
+              $signHeaders[$signHeaderKeys[$i]] = $signBaseHeadersSys[$signHeaderKeys[$i]];
+              unset($signBaseHeadersSys[$signHeaderKeys[$i]]);
+            }else if (isset($_SERVER[$authHeaderKey])) {
               $signHeaders[$signHeaderKeys[$i]] = $_SERVER[$authHeaderKey];
               unset($signBaseHeadersSys[$authHeaderKey]);
             }else{
