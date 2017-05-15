@@ -39,7 +39,7 @@ final class ResponseParse
     return $r;
   }
   //获取签名信息
-  public static function echoStr($data, $isDie = true, $isAutoHeader = true, $isAutoSessionClose = true, $isAutoObClean = null, $isNotUnescapedUnicode = true){
+  public static function echoStr($data, $isEcho = true, $isAutoHeader = true, $isAutoSessionClose = true, $isAutoObClean = null, $isNotUnescapedUnicode = true){
     // 关闭会话
     try{
       if ($isAutoSessionClose===true&&function_exists('session_write_close')) {
@@ -74,9 +74,11 @@ final class ResponseParse
         ob_clean();
       }catch(Exception $e){}
     }
-    echo self::toJsonString($data);
-    if ($isDie===true) {
+    if ($isEcho===true) {
+      echo self::toJsonString($data);
       die();
+    }else{
+      return self::toJsonString($data);
     }
   }
 }

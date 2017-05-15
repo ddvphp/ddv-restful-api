@@ -50,7 +50,13 @@
         //消息
         'message'=>'',
         //代码
-        'code'=>0
+        'code'=>0,
+        //数据
+        'data'=>null,
+        //列表
+        'lists'=>null,
+        //分页
+        'page'=>null
       );
     }
     public function config($config = null)
@@ -125,9 +131,9 @@
      * @author: 桦 <yuchonghua@163.com>
      * @DateTime 2017-04-26T18:56:12+0800
      */
-    public function echoStr($e)
+    public function echoStr()
     {
-      return ResponseParse::echoStr($e);
+      return call_user_func_array(array(ResponseParse::class, 'echoStr'), func_get_args());
     }
     /**
      * [setHandler 设置错误监听]

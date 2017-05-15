@@ -27,6 +27,21 @@ class InitByLaravel
             // 使用 ddvRestfulApi 跨越
             $restfulApi->initCors();
         }
-        return $next($request);
+        $response = $next($request);
+        
+        $r = array_merge($restfulApi->responseData, $response->original);
+
+        if (empty($r['statusCode'])) {
+            if (method_exists($response, 'getStatusCode')) {
+                $r['statusCode'] = $response->getStatusCode();
+            }
+        }
+        if (empty($r['errorId'])) {
+            $r['errorId'] = empty($response->statusTexts[$r['statusCode']])? $r['message'] : $response->statusTexts[$r['statusCode']];
+        }
+        $response->original = $r ;
+        $response->setStatusCode($r['statusCode'], $r['message']);
+        $response->setContent($restfulApi->echoStr($r, false, false, false, false));
+        return $response;
     }
 }
