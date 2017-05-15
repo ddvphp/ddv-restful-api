@@ -35,7 +35,7 @@ class AuthByLaravel
       //清除数据
       @session_unset();
       $session_id = $restfulApi->getSessionId();
-      $_COOKIE[$request->session()->getName()] = $session_id;
+      @$_COOKIE[$request->session()->getName()] = $session_id;
       // 开启会话
       @session_id($session_id);
       // 开启会话
