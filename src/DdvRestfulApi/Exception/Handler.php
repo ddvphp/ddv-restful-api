@@ -9,7 +9,7 @@ final class Handler
 {
   private static $onHandlerObj = null;
   private static $onHandlerMethod = null;
-  private static $handlerDir =  __DIR__.'/../handler/';
+  private static $handlerDir =  null;
   //app请求标识
   private static $isSetErrorHandlerInit = false ;
   private static $isSetExceptionHandlerInit = false ;
@@ -18,6 +18,7 @@ final class Handler
     throw new NotNewClassError("This Handler class does not support instantiation");
   }
   public static function setHandler($obj, $method){
+    self::$handlerDir =  __DIR__.'/../handler/';
     self::$onHandlerObj = $obj;
     self::$onHandlerMethod = $method;
     self::setErrorHandlerInit();
