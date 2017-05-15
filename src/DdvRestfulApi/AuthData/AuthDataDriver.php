@@ -31,7 +31,7 @@ abstract class AuthDataDriver implements \DdvPhp\DdvRestfulApi\AuthData\AuthData
   public function __construct()
   {
 
-    if (is_php('7'))
+    if ($this->is_php('7'))
     {
       $this->_success = TRUE;
       $this->_failure = FALSE;
@@ -107,6 +107,23 @@ abstract class AuthDataDriver implements \DdvPhp\DdvRestfulApi\AuthData\AuthData
     ini_set('session.save_path', config_item('sess_save_path'));
     return $this->_failure;
   }
+  /**
+   * Determines if the current version of PHP is equal to or greater than the supplied value
+   *
+   * @param	string
+   * @return	bool	TRUE if the current version is $version or higher
+   */
+protected function is_php($version)
+  {
+    static $_is_php;
+    $version = (string) $version;
 
+    if ( ! isset($_is_php[$version]))
+    {
+      $_is_php[$version] = version_compare(PHP_VERSION, $version, '>=');
+    }
+
+    return $_is_php[$version];
+  }
 }
 ?>
