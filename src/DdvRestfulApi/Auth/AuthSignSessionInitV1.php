@@ -1,13 +1,13 @@
-<?php 
+<?php
   namespace DdvPhp\DdvRestfulApi\Auth;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
   use \DdvPhp\DdvRestfulApi\Exception\AuthEcho as AuthEchoException;
   /**
-  * 
+  *
   */
   class AuthSignSessionInitV1 extends \DdvPhp\DdvRestfulApi\Auth\AuthSignSessionBase
   {
-    private $regAuth = 
+    private $regAuth =
       '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/([\d]+)\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([\da-f]{64})$/i';
     private $regSessionId = '/^([0-9a-zA-Z,-]+)$/i';
     private $regRequestId = '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})$/i';
@@ -80,12 +80,12 @@
         'type' => 'update',
         // 给客户端计算时差
         'serverTime' => time(),
-        'session_data' => array(
-          'session_prefix' => $this->signBaseHeadersPrefix,
-          'session_id' => $sessionId,
-          'session_card' => $data['card'],
-          'session_key' => $data['key'],
-          'server_time' => (string)time()
+        'sessionData' => array(
+          'sessionPrefix' => $this->signBaseHeadersPrefix,
+          'sessionId' => $sessionId,
+          'sessionCard' => $data['card'],
+          'sessionKey' => $data['key'],
+          'serverTime' => (string)time()
         )
       );
     }
@@ -137,7 +137,7 @@
       $auths = array();
       // 试图正则匹配
       preg_match($this->regAuth, $this->authorization,$auths);
-      // 
+      //
       if (count($auths)!==8) {
         throw new AuthErrorException('Authentication Info Length Error', 'AUTHORIZATION_ERROR_INFO_LENGTH', 403);
       }elseif (empty($auths[0])) {
@@ -193,5 +193,4 @@
       );
     }
   }
-
- ?>
+?>
