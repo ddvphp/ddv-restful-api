@@ -1,6 +1,6 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi;
+  namespace DdvPhp;
   use \DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
   use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
@@ -231,7 +231,7 @@
 
   }
   /**
-  * 
+  *
   */
   class newClassNameSaveByStaticClass
   {
