@@ -3,7 +3,7 @@
  use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
  use \DdvPhp\DdvRestfulApi\DdvRestfulApi as DdvRestfulApiClass;
 /**
-* 
+*
 */
 final class Handler
 {
@@ -57,7 +57,7 @@ final class Handler
     if ((!empty($onHandlerMethod))&&method_exists($onHandlerObj, $onHandlerMethod)) {
       $onHandlerObj->$onHandlerMethod($r, $e);
     }else{
-      if (!$r['isIgnoreError']) {
+      if (empty($r['isIgnoreError']) || $r['isIgnoreError']!==true) {
         ResponseParse::echoStr($r, $e);
       }
     }
@@ -135,4 +135,3 @@ final class Handler
     self::emitHandler($r, $e);
   }
 }
-?>
