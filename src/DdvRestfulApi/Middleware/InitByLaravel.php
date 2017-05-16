@@ -19,7 +19,7 @@ class InitByLaravel
     {
         if(!$this->isDdvRestfulApiInit){
             $this->isDdvRestfulApiInit = true;
-            $restfulApi = \DdvPhp\DdvRestfulApi\DdvRestfulApi::getInstance();
+            $restfulApi = \DdvPhp\DdvRestfulApi::getInstance();
             // 配置 ddvRestfulApi 参数
             $restfulApi->config((config('ddvRestfulApi')));
             // 使用 ddvRestfulApi 解析请求数据

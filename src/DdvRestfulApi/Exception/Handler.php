@@ -1,7 +1,6 @@
 <?php
  namespace DdvPhp\DdvRestfulApi\Exception;
  use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
- use \DdvPhp\DdvRestfulApi\DdvRestfulApi as DdvRestfulApiClass;
 /**
 *
 */
@@ -94,7 +93,7 @@ final class Handler
       $r = array_merge($e->getResponseData(), $r);
     }
     //调试模式
-    if (DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment()) {
+    if (\DdvPhp\DdvRestfulApi::getDdvRestfulApi()->isDevelopment()) {
       $r['debug'] = array();
       $r['debug']['type'] = get_class($e);
       $r['debug']['line'] = $errline;
@@ -118,7 +117,7 @@ final class Handler
     $r['responseData'] = array();
     $e = new \Exception($message, $errorCode);
     //调试模式
-    if (DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment()) {
+    if (\DdvPhp\DdvRestfulApi::getDdvRestfulApi()->isDevelopment()) {
       $r['debug'] = array();
       $r['debug']['type'] = 'Error';
       $r['debug']['line'] = $errline;

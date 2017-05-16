@@ -4,7 +4,6 @@ use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
 use \DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
 use \DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
 use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
-use \DdvPhp\DdvRestfulApi\DdvRestfulApi as DdvRestfulApiClass;
 /**
 * 
 */
@@ -46,7 +45,7 @@ final class ResponseParse
         @session_write_close();
       }
     }catch(Exception $e){}
-    $isAutoObClean = !DdvRestfulApiClass::getDdvRestfulApi()->isDevelopment();
+    $isAutoObClean = !\DdvPhp\DdvRestfulApi::getDdvRestfulApi()->isDevelopment();
 
     $statusCode = empty($data['statusCode'])? ( isset($data['errorId'])&&$data['errorId']!=='OK'?500:200 ) : $data['statusCode'] ;
     $statusText = empty($data['errorId']) ? '' : $data['errorId'];

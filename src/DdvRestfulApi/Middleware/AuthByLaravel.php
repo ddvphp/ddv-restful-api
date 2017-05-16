@@ -18,7 +18,7 @@ class AuthByLaravel
   {
     if(!$this->isDdvRestfulApiAuth){
       $this->isDdvRestfulApiAuth = true;
-      $restfulApi = \DdvPhp\DdvRestfulApi\DdvRestfulApi::getInstance();
+      $restfulApi = \DdvPhp\DdvRestfulApi::getInstance();
 
       $restfulApi->config(array('authDataDriver'=>'session'));
       
