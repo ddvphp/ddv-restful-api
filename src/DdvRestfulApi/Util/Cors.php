@@ -17,6 +17,9 @@ use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
     public static function init($config)
     {
+      if (empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])){
+        return;
+      }
       $control = is_array($config['control']) ? $config['control'] : 7200;
       $origins = is_array($config['origin']) ? $config['origin'] : array();
       $methods = is_array($config['method']) ? $config['method'] : array();
