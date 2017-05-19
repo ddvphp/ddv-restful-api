@@ -1,6 +1,6 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi\Util;
+namespace DdvPhp\DdvRestfulApi\Util;
 
 use \DdvPhp\DdvRestfulApi\Exception\Cors as CorsException;
 use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
@@ -17,24 +17,11 @@ use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
     public static function init($config)
     {
-      if (empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])){
-        return;
-      }
-      $control = is_array($config['control']) ? $config['control'] : 7200;
       $origins = is_array($config['origin']) ? $config['origin'] : array();
-      $methods = is_array($config['method']) ? $config['method'] : array();
-      $allowHeaders = is_array($config['allowHeader']) ? $config['allowHeader'] : array();
-      $exposeHeaders = is_array($config['exposeHeader']) ? $config['exposeHeader'] : array();
       //获取请求域名
       $origin = empty($_SERVER['HTTP_ORIGIN'])? '' : $_SERVER['HTTP_ORIGIN'];
-      //标记请求方式
-      $method = strtoupper(empty($_SERVER['REQUEST_METHOD'])? 'GET' : $_SERVER['REQUEST_METHOD']);
-      //标记请求方式
-      $originMethod = strtoupper(empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])? 'GET' : $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
-      $originsLen = count($origins);
       $originPass = false;
-      for ($i=0; $i < $originsLen; $i++) {
-        $origint = $origins[$i];
+      foreach ($origins as $i => $origint) {
         if ($origin===substr($origint, 0, strlen($origin))) {
           $originPass = true;
           break;
@@ -43,13 +30,26 @@ use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
           break;
         }
       }
+      if ($originPass) {
+        //通过授权
+        @header('Access-Control-Allow-Credentials:true');
+        //允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"。这里要注意Origin规则只对域名有效，并不会对子目录有效。即http://foo.example/subdir/ 是无效的。但是不同子域名需要分开设置，这里的规则可以参照同源策略
+        @header('Access-Control-Allow-Origin:'.$origin);
+        if (empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])){
+          return;
+        }
+      }
+      $control = is_array($config['control']) ? $config['control'] : 7200;
+      $methods = is_array($config['method']) ? $config['method'] : array();
+      $allowHeaders = is_array($config['allowHeader']) ? $config['allowHeader'] : array();
+      $exposeHeaders = is_array($config['exposeHeader']) ? $config['exposeHeader'] : array();
+      //标记请求方式
+      $method = strtoupper(empty($_SERVER['REQUEST_METHOD'])? 'GET' : $_SERVER['REQUEST_METHOD']);
+      //标记请求方式
+      $originMethod = strtoupper(empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])? 'GET' : $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
       if (!$originPass) {
         throw new CorsException("No origin is allowed", 'NO_ORIGIN_ALLOWED');
       }
-      //通过授权
-      @header('Access-Control-Allow-Credentials:true');
-      //允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"。这里要注意Origin规则只对域名有效，并不会对子目录有效。即http://foo.example/subdir/ 是无效的。但是不同子域名需要分开设置，这里的规则可以参照同源策略
-      @header('Access-Control-Allow-Origin:'.$origin);
       if ($method!=='OPTIONS') {
         return true;
       }
@@ -115,4 +115,3 @@ use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
       return $reg;
     }
   }
-?>
