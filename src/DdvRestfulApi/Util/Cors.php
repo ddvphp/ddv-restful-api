@@ -17,6 +17,9 @@ class Cors
 
   public static function init($config)
   {
+    if (empty($_SERVER['HTTP_ORIGIN'])) {
+      return false;
+    }
     $origins = is_array($config['origin']) ? $config['origin'] : array();
     //获取请求域名
     $origin = empty($_SERVER['HTTP_ORIGIN'])? '' : $_SERVER['HTTP_ORIGIN'];
@@ -35,9 +38,9 @@ class Cors
       @header('Access-Control-Allow-Credentials:true');
       //允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"。这里要注意Origin规则只对域名有效，并不会对子目录有效。即http://foo.example/subdir/ 是无效的。但是不同子域名需要分开设置，这里的规则可以参照同源策略
       @header('Access-Control-Allow-Origin:'.$origin);
-      if (empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])){
-        return;
-      }
+    }
+    if (empty($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])){
+      return $originPass;
     }
     $control = is_array($config['control']) ? $config['control'] : 7200;
     $methods = is_array($config['method']) ? $config['method'] : array();
@@ -63,7 +66,7 @@ class Cors
     $originHeaders = explode(',', $originHeadersStr);
     $originHeadersLen = count($originHeaders);
     $allowOriginHeaders = array();
-    
+
     for ($i=0; $i < $originHeadersLen; $i++) {
       $t = $originHeaders[$i];
       $t = trim($t);
