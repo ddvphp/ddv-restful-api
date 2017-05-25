@@ -61,12 +61,12 @@
         // 授权数据
         $data = $this->getAuthData($sessionId);
       }else{
-        $sessionId = $this->createSessionId();
+        $sessionId = $this->generateSessionId();
       }
       $data = isset($data) && is_array($data) ? $data : array();
 
       if (empty($data['card'])||$sessionCard!==$data['card']) {
-        $sessionId = $this->createSessionId();
+        $sessionId = $this->generateSessionId();
         $data['card'] = $sessionCard;
         $data['key'] = $this->createSessionKey($data['card']);
       }

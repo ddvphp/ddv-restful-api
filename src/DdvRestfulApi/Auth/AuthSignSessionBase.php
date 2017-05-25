@@ -106,7 +106,10 @@
       return $session_key;
     }
 
-    public function createSessionId(){
+    public function generateSessionId(){
+      if ($this->authDataDriverObj && method_exists($this->authDataDriverObj, 'generateSessionId')) {
+        return $this->authDataDriverObj->generateSessionId();
+      }
       $sidLength = @ini_get('session.sid_length');
       $sidLength = !isset($sidLength) || intval($sidLength) <= 8 ? 32 : $sidLength;
       $randomSid = bin2hex(random_bytes($sidLength));
@@ -125,7 +128,7 @@
       $sessionId = substr($randomSid, 0, $sidLength);
 
       if ($this->getAuthData($sessionId)!==null) {
-        return $this->createSessionId();
+        return $this->generateSessionId();
       }
       return $sessionId;
     }
