@@ -47,11 +47,16 @@ class AuthSessionByLaravel extends \Illuminate\Session\Middleware\StartSession
       // 通过请求对象来重写 $sessionId
       $request->cookies->set($sessionName, $sessionId);
     }catch(\Exception $e){}
-    $this->getSession($request)->setId($sessionId);
+    // 获取会话
+    $session = $this->getSession($request);
+    // 设置会话id
+    $session->setId($sessionId);
     // 开启会话
     $response = parent::handle($request, function ($request) use ($next) {
       return $next($request);
     });
+    // 保存会话
+    $session->save();
 
     try{
       // 通过请求对象来清理cookie
