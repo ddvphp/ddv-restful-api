@@ -95,7 +95,7 @@ class Cors
       if ($originHeader===substr($headert, 0, strlen($originHeader))) {
         $allowHeaderPasst = true;
         break;
-      }else if(preg_match(('/^'.self::getReg($headert).'$/'), $originHeader)){
+      }else if(preg_match(('/^'.self::getReg($headert).'$/i'), $originHeader)){
         $allowHeaderPasst = true;
         break;
       }
