@@ -116,13 +116,13 @@
      * @author: 桦 <yuchonghua@163.com>
      * @DateTime 2017-04-26T18:56:12+0800
      */
-    public function echo404()
+    public function echo404($message = 'Api interface not found', $errorId = '404 Not Found', $statusCode=404)
     {
       $responseData = array(
-        'statusCode'=>404,
+        'statusCode'=>$statusCode,
         'code'=>0,
-        'errorId'=>'404 Not Found',
-        'message'=>'Api interface not found'
+        'errorId'=>$errorId,
+        'message'=>$message
       );
       return $this->echoData($responseData);
     }
