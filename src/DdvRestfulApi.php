@@ -143,7 +143,9 @@
     {
       \DdvPhp\DdvException\Handler::setHandler(function (array $r, $e) {
         $this->onHandler($r, $e);
-      }, $this->isDevelopment());
+      }, function () {
+        return $this->isDevelopment();
+      });
       return $this;
     }
     // 请求解析
