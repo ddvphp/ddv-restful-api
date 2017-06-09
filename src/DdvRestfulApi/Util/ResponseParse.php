@@ -1,7 +1,6 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Util;
 use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-use \DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
 use \DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
 use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
 /**
@@ -11,7 +10,7 @@ final class ResponseParse
 {
   public function __construct()
   {
-    throw new NotNewClassError("This ResponseParse class does not support instantiation");
+    throw new \DdvPhp\DdvException\NotNewClassError("This ResponseParse class does not support instantiation");
   }
   //获取签名信息
   public static function toJsonString($data, $isNotUnescapedUnicode = true){

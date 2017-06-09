@@ -1,15 +1,12 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi\Exception;
+namespace DdvPhp\DdvRestfulApi\Exception;
 
-  use \DdvPhp\DdvRestfulApi\Exception\Error as DdvErrorException;
-
-
-  class RequestParseError extends DdvErrorException
+class RequestParseError extends \DdvPhp\DdvRestfulApi\Exception\RJsonError
+{
+  // 魔术方法
+  public function __construct( $message = 'Request parse error', $errorId = 'RequestParseError' , $code = '500' )
   {
-    // 魔术方法
-    public function __construct( $message = 'Request parse error', $errorId = 'RequestParseError' , $code = '500' )
-    {
-      parent::__construct( $message , $errorId , $code );
-    }
+    parent::__construct( $message , $errorId , $code );
   }
+}

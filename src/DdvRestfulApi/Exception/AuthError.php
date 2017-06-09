@@ -1,15 +1,12 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi\Exception;
+namespace DdvPhp\DdvRestfulApi\Exception;
 
-  use \DdvPhp\DdvRestfulApi\Exception\Error as DdvErrorException;
-
-
-  class AuthError extends DdvErrorException
+class AuthError extends \DdvPhp\DdvRestfulApi\Exception\RJsonError
+{
+  // 魔术方法
+  public function __construct( $message = 'Authentication Error' , $errorId = 'AUTHENTICATION_ERROR' , $code = '403', $errorData = array() )
   {
-    // 魔术方法
-    public function __construct( $message = 'Authentication Error' , $errorId = 'AUTHENTICATION_ERROR' , $code = '403', $errorData = array() )
-    {
-      parent::__construct( $message , $errorId , $code, $errorData );
-    }
+    parent::__construct( $message , $errorId , $code, $errorData );
   }
+}

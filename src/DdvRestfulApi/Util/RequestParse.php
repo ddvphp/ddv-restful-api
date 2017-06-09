@@ -1,7 +1,6 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Util;
 use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-use \DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
 use \DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
 /**
 * 
@@ -10,7 +9,7 @@ final class RequestParse
 {
   public function __construct()
   {
-    throw new NotNewClassError("This RequestParse class does not support instantiation");
+    throw new \DdvPhp\DdvException\NotNewClassError("This RequestParse class does not support instantiation");
   }
   //获取签名信息
   public static function requestParse(){

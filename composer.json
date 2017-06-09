@@ -5,7 +5,8 @@
 	"minimum-stability":"beta",
 	"require": {
 		"php": ">=5.3",
-		"paragonie/random_compat": "^2.0"
+		"paragonie/random_compat": "^2.0",
+		"ddvphp/ddv-exception": "~0.0.*"
 	},
 	"require-dev": {
 	},

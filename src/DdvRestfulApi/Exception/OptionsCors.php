@@ -1,15 +1,12 @@
 <?php
 
-  namespace DdvPhp\DdvRestfulApi\Exception;
+namespace DdvPhp\DdvRestfulApi\Exception;
 
-  use \DdvPhp\DdvRestfulApi\Exception\RJsonSuccess as RJsonSuccessException;
-
-
-  class OptionsCors extends RJsonSuccessException
+class OptionsCors extends \DdvPhp\DdvRestfulApi\Exception\RJsonSuccess
+{
+  // 魔术方法
+  public function __construct($message = '' , $errorId = 'OK' , $code = '200' )
   {
-    // 魔术方法
-    public function __construct($message = '' , $errorId = 'OK' , $code = '200' )
-    {
-      parent::__construct(array(), $message , $errorId , $code );
-    }
+    parent::__construct(array(), $message , $errorId , $code );
   }
+}

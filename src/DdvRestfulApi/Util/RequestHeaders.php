@@ -1,6 +1,5 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Util;
-use \DdvPhp\DdvRestfulApi\Exception\NotNewClassError as NotNewClassError;
 /**
 * 
 */
@@ -9,7 +8,7 @@ final class RequestHeaders
   
   public function __construct()
   {
-    throw new NotNewClassError("This RequestHeaders class does not support instantiation");
+    throw new \DdvPhp\DdvException\NotNewClassError("This RequestHeaders class does not support instantiation");
   }
   //请求头
   private static $header = array();

@@ -4,7 +4,6 @@
   use \DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
   use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-  use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
   use \DdvPhp\DdvRestfulApi\Util\Sign as DdvSign;
   use \DdvPhp\DdvRestfulApi\Util\Cors as CorsException;
   use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
@@ -142,7 +141,9 @@
      */
     public function useHandler()
     {
-      ExceptionHandler::setHandler($this, 'onHandler');
+      \DdvPhp\DdvException\Handler::setHandler(function (array $r, $e) {
+        $this->onHandler($r, $e);
+      }, $this->isDevelopment());
       return $this;
     }
     // 请求解析
