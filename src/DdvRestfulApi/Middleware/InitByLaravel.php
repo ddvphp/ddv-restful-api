@@ -72,6 +72,9 @@ class InitByLaravel
     if (empty($r['errorId'])) {
       $r['errorId'] = empty($response->statusTexts[$r['statusCode']])? $r['message'] : $response->statusTexts[$r['statusCode']];
     }
+    $r['data'] = empty($r['data']) ? (object)array() : $r['data'];
+    $r['page'] = empty($r['page']) ? (object)array() : $r['page'];
+
     $response->original = $r ;
     $response->setStatusCode($r['statusCode'], $r['message']);
     $response->setContent($r);
