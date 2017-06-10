@@ -1,10 +1,10 @@
-<?php 
+<?php
   namespace DdvPhp\DdvRestfulApi\Auth;
   use \DdvPhp\DdvRestfulApi\Util\Sign as DdvSign;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
   /**
-  * 
+  *
   */
   class AuthSignSessionBase
   {
@@ -94,7 +94,7 @@
     public function createSessionKey($session_card=null) {
       $session_card = empty($session_card) ? $this->createSessionCard() : $session_card;
       $ua = isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : microtime();
-      $session_key = strtolower( 
+      $session_key = strtolower(
           substr(md5($this->createSessionCard().$session_card),7,4)
           .'-'.substr(md5($this->createSessionCard().mt_rand().$session_card.$this->createGuid()),7,12)
           .'-'.substr(md5(uniqid(mt_rand(), true)),15,4).'-'.$this->createGuid().'-'.substr(md5($ua),15,8)
@@ -112,7 +112,7 @@
       }
       $sidLength = @ini_get('session.sid_length');
       $sidLength = !isset($sidLength) || intval($sidLength) <= 8 ? 32 : $sidLength;
-      $randomSid = bin2hex(random_bytes($sidLength));
+      $randomSid = bin2hex(random_bytes(intval($sidLength/2)+1));
       // Use same charset as PHP
       $sessionId = '';
       if (!$sidLength>12) {

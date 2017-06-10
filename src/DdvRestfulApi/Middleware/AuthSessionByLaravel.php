@@ -133,7 +133,7 @@ class AuthDataSessionDriver extends \DdvPhp\DdvRestfulApi\AuthData\AuthDataDrive
   public function generateSessionId()
   {
     $session = $this->startSession->getSession($this->request);
-    $session->setId(bin2hex(random_bytes(40)));
+    $session->setId(bin2hex(random_bytes(20)));
     return $session->getId();
   }
   public function close()
