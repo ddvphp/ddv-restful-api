@@ -1,10 +1,10 @@
-<?php 
+<?php
 namespace DdvPhp\DdvRestfulApi\Util;
 use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
 use \DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
 use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
 /**
-* 
+*
 */
 final class ResponseParse
 {
@@ -72,6 +72,8 @@ final class ResponseParse
         ob_clean();
       }catch(Exception $e){}
     }
+    $data['data'] = empty($data['data']) ? (object)array() : $data['data'];
+    $data['page'] = empty($data['page']) ? (object)array() : $data['page'];
     if ($isEcho===true) {
       echo self::toJsonString($data);
       die();
@@ -80,4 +82,3 @@ final class ResponseParse
     }
   }
 }
-?>
