@@ -5,7 +5,7 @@
   /**
   *
   */
-  class AuthSignSessionInitV1 extends \DdvPhp\DdvRestfulApi\Auth\AuthSignSessionBase
+  class AuthSignSessionInitV1 extends \DdvPhp\DdvRestfulApi\Auth\AuthAbstract
   {
     private $regAuth =
       '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/([\d]+)\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([\da-f]{64})$/i';

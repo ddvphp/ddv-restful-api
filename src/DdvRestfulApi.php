@@ -4,7 +4,7 @@
   use \DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
   use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-  use \DdvPhp\DdvRestfulApi\Util\Sign as DdvSign;
+  use \DdvPhp\DdvRestfulApi\Util\Auth as DdvAuth;
   use \DdvPhp\DdvRestfulApi\Util\Cors as CorsException;
   use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
 
@@ -26,7 +26,7 @@
     protected $headersPrefix = '' ;
     // 签名信息
     protected $signInfo = null;
-    protected $authSignRun = false ;
+    protected $authRun = false ;
     protected $config = array(
       'authDataDriver'=>'file',
       'headersPrefix'=>'x-ddv-',
@@ -53,7 +53,7 @@
         //数据
         'data'=>null,
         //列表
-        'lists'=>null,
+        'lists'=>[],
         //分页
         'page'=>null
       );
@@ -171,13 +171,18 @@
     {
       return $this->signInfo['sessionId'];
     }
-    // 授权模块
+    // 授权模块[兼容旧版]
     public function authSign ()
     {
-      if (!$this->authSignRun) {
-        $this->authSignRun = true;
+      return $this->auth();
+    }
+    // 授权模块
+    public function auth ()
+    {
+      if (!$this->authRun) {
+        $this->authRun = true;
         $this->requestParse();
-        DdvSign::sign($this->signInfo, $this->config);
+        DdvAuth::auth($this->signInfo, $this->config);
       }
       return $this->signInfo;
     }

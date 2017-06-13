@@ -1,10 +1,10 @@
-<?php
+<?php 
 namespace DdvPhp\DdvRestfulApi\Util;
 use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
 use \DdvPhp\DdvRestfulApi\Exception\RequestParseError as RequestParseError;
 use \DdvPhp\DdvRestfulApi\Exception\Handler as ExceptionHandler;
 /**
-*
+* 
 */
 final class ResponseParse
 {
@@ -82,3 +82,4 @@ final class ResponseParse
     }
   }
 }
+?>
