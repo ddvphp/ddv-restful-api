@@ -5,8 +5,8 @@ namespace DdvPhp\DdvRestfulApi\Exception;
 class RJsonError extends \DdvPhp\DdvException\Error
 {
   // 魔术方法
-  public function __construct( $message = 'Unknown Error', $errorId = 'UNKNOWN_ERROR' , $code = '400' )
+  public function __construct( $message = 'Unknown Error', $errorId = 'UNKNOWN_ERROR' , $code = '400', $errorData )
   {
-    parent::__construct( $message , $errorId , $code );
+    parent::__construct( $message , $errorId , $code, $errorData );
   }
 }
