@@ -7,6 +7,7 @@
   use \DdvPhp\DdvRestfulApi\Util\Auth as DdvAuth;
   use \DdvPhp\DdvRestfulApi\Util\Cors as CorsException;
   use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
+  use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
 
   /**
@@ -185,6 +186,22 @@
         DdvAuth::auth($this->signInfo, $this->config);
       }
       return $this->signInfo;
+    }
+    // 获取已经索取的数据信息
+    public function getAuthData ()
+    {
+      if (!$this->authRun) {
+        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION');
+      }
+      return DdvAuth::getAuthData($this->getSessionId());
+    }
+    // 获取已经索取的数据信息
+    public function saveAuthData ($save)
+    {
+      if (!$this->authRun) {
+        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION');
+      }
+      return DdvAuth::saveAuthData($this->getSessionId(), $save);
     }
     // 获取实例化对象
     public static function getInstance($config = array(), $class = null)
