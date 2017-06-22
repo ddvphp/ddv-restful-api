@@ -15,20 +15,63 @@ class AuthSignDdvUrlV1 extends AuthAbstract
   }
   private function checkAuth()
   {
-    $authorization = preg_replace('/\_/', '/', preg_replace('/\-/', '+', $this->authorization));
-    $authorization = base64_decode($authorization);
-    $clientSign = substr($authorization, -16);
-    $authorization = substr($authorization, 0, -16);
-    $authorization = gzuncompress($authorization);
-    $authorization = json_decode($authorization, true);
+    if (empty($this->authorization)) {
+      throw new AuthErrorException('Authentication Info Length Error','AUTHORIZATION_ERROR_INFO_LENGTH',403);
+    }
+    try {
+      $authorization = preg_replace('/\_/', '/', preg_replace('/\-/', '+', $this->authorization));
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication Parse Error','AUTHENTICATION_PARSE_ERROR',403);
+    }
+    try {
+      $authorization = base64_decode($authorization);
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication Base64 Decode Error','AUTHENTICATION_BASE64_DECODE_ERROR',403);
+    }
+    try {
+      $clientSign = substr($authorization, -16);
+      if (empty($clientSign)) {
+        throw new AuthErrorException('Authentication client sign must input','AUTHENTICATION_CLIENT_SIGN_MUST_INPUT',403);
+      }
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication client sign must input','AUTHENTICATION_CLIENT_SIGN_MUST_INPUT',403);
+    }
+    try {
+      $authorization = substr($authorization, 0, -16);
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication wrong format as content','AUTHORIZATION_ERROR_FORMAT_WRONG',403);
+    }
+    if (empty($authorization)) {
+      throw new AuthErrorException('Authentication Info Length Error','AUTHORIZATION_ERROR_INFO_LENGTH',403);
+    }
+    try {
+      $authorization = gzuncompress($authorization);
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication gzuncompress error','AUTHENTICATION_GZUNCOMPRESS_ERROR',403);
+    }
+    try {
+      $authorization = json_decode($authorization, true);
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication json decode error','AUTHENTICATION_JSON_DECODE_ERROR',403);
+    }
     $noSignQuery = (!empty($authorization[3]))&&is_array($authorization[3])?$authorization[3]:array();
     $headersKeys = (!empty($authorization[4]))&&is_array($authorization[4])?$authorization[4]:array();
 
-    list($sessionId, $signTime, $expiredTimeOffset) = $authorization;
+    try {
+      @list($sessionId, $signTime, $expiredTimeOffset) = $authorization;
+    } catch (Exception $e) {
+      throw new AuthErrorException('Authentication json decode error','AUTHENTICATION_JSON_DECODE_ERROR',403);
+    }
+    if (empty($sessionId)) {
+      throw new AuthErrorException('Authentication sessionId Error','AUTHENTICATION_SESSIONID_ERROR',403);
+    }
 
     // 授权数据
     $data = $this->getAuthData($sessionId);
 
+    if (empty($data)||empty($data['card'])||empty($data['key'])) {
+      throw new AuthErrorException('Authentication auth data empty','AUTHENTICATION_AUTH_DATA_EMPTY',403);
+    }
     $sessionCard = $data['card'];
 
     // 通过
