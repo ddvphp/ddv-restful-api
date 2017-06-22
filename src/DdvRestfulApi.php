@@ -188,10 +188,18 @@
       return $this->signInfo;
     }
     // 获取已经索取的数据信息
+    public function getSignUrl ($path = '/', $query = array(), $noSignQuery = array(), $method = 'GET', $headers = array(), $authClassName = null)
+    {
+      if (!$this->authRun) {
+        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
+      }
+      return DdvAuth::getSignUrl($this->getSessionId(), $path, $query, $noSignQuery, $method, $headers, $authClassName);
+    }
+    // 获取已经索取的数据信息
     public function getAuthData ()
     {
       if (!$this->authRun) {
-        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION');
+        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
       }
       return DdvAuth::getAuthData($this->getSessionId());
     }
@@ -199,7 +207,7 @@
     public function saveAuthData ($save)
     {
       if (!$this->authRun) {
-        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION');
+        throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
       }
       return DdvAuth::saveAuthData($this->getSessionId(), $save);
     }
