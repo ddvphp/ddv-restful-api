@@ -104,7 +104,9 @@ class AuthSignDdvUrlV1 extends AuthAbstract
       foreach ($canonicalQueryArray as $key => $t) {
         $ts = explode('=', $t);
         if (!($ts && $ts[0] && in_array(strtolower($ts[0]), $authPrefixs))) {
-          $canonicalQueryArrayNew[] = $t;
+          if (!in_array($ts[0], $noSignQuery)) {
+            $canonicalQueryArrayNew[] = $t;
+          }
         }
       }
       $canonicalQuery = implode('&', $canonicalQueryArrayNew);
@@ -229,6 +231,17 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     // 重新排序编码
     $canonicalQuery = self::canonicalQuerySort($query);
 
+    if ($canonicalQuery) {
+      $canonicalQueryArray = explode('&', $canonicalQuery);
+      $canonicalQueryArrayNew = array();
+      foreach ($canonicalQueryArray as $key => $t) {
+        $ts = explode('=', $t);
+        if (!($ts && $ts[0] && in_array(strtolower($ts[0]), $noSignQuery))) {
+          $canonicalQueryArrayNew[] = $t;
+        }
+      }
+      $canonicalQuery = implode('&', $canonicalQueryArrayNew);
+    }
     $url = $path;
     if ($query) {
       $url.='?'.$query;
