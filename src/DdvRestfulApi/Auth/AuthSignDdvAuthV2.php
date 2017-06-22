@@ -4,7 +4,7 @@
   /**
   * 
   */
-  class AuthSignDdvAuthV2 extends \DdvPhp\DdvRestfulApi\Auth\AuthAbstract
+  class AuthSignDdvAuthV2 extends AuthAbstract
   {
     private $regAuth = 
       '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/(\d+)\/([\w\-\;]+)\/([\da-f]{64})$/i';
@@ -55,13 +55,13 @@
       $canonicalQuery = isset($canonicalUris['query'])?$canonicalUris['query']:'';
       //取得path
       $canonicalPath = substr($canonicalPath, 0, 1)==='/'?$canonicalPath:('/'.$canonicalPath);
-      $canonicalPath = $this->urlEncodeExceptSlash($canonicalPath);
+      $canonicalPath = self::urlEncodeExceptSlash($canonicalPath);
 
       // 重新排序编码
-      $canonicalQuery = $this->canonicalQuerySort($canonicalQuery);
+      $canonicalQuery = self::canonicalQuerySort($canonicalQuery);
 
       // 获取签名头
-      $canonicalHeaders = $this->getCanonicalHeaders($signHeaders);
+      $canonicalHeaders = self::getCanonicalHeaders($signHeaders);
 
       //生成需要签名的信息体
       $canonicalRequest = "{$this->method}\n{$canonicalPath}\n{$canonicalQuery}\n{$canonicalHeaders}";
@@ -87,19 +87,19 @@
       $this->signInfo['sessionId'] = $sessionId;
       return true;
     }
-    private function getCanonicalHeaders($signHeaders = array())
+    private static function getCanonicalHeaders($signHeaders = array())
     {
-      //把系统头和自定义头合并
+      //重新编码
       $canonicalHeader = array();
       foreach ($signHeaders as $key => $value) {
-        $canonicalHeader[] = strtolower($this->urlEncode(trim($key))).':'.$this->urlEncode(trim($value));
+        $canonicalHeader[] = strtolower(self::urlEncode(trim($key))).':'.self::urlEncode(trim($value));
       }
       sort($canonicalHeader);
       //服务器模拟客户端生成的头
       $canonicalHeader = implode("\n", $canonicalHeader) ;
       return $canonicalHeader;
     }
-    private function canonicalQuerySort($canonicalQuery = '')
+    private static function canonicalQuerySort($canonicalQuery = '')
     {
       //拆分get请求的参数
       $canonicalQuery = empty($canonicalQuery) ? array() : explode('&',$canonicalQuery);
@@ -109,7 +109,7 @@
       $tempKey = '';
       $tempValue = '';
       foreach ($canonicalQuery as $key => $temp) {
-        $temp = $this->urlDecode($temp);
+        $temp = self::urlDecode($temp);
         $tempI = strpos($temp,'=');
         if (strpos($temp,'=')===false) {
           continue;
@@ -117,7 +117,7 @@
         $tempKey = substr($temp, 0,$tempI);
         $tempValue = substr($temp, $tempI+1);
         
-        $tempNew[] = $this->urlEncode($tempKey).'='.$this->urlEncode($tempValue);
+        $tempNew[] = self::urlEncode($tempKey).'='.self::urlEncode($tempValue);
       }
       sort($tempNew);
       $canonicalQuery = implode('&', $tempNew) ;

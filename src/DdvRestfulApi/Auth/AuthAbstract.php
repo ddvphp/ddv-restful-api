@@ -60,18 +60,18 @@ abstract class AuthAbstract
   }
 
   //在uri编码中不能对'/'编码
-  public function urlEncodeExceptSlash($path)
+  public static function urlEncodeExceptSlash($path)
   {
     return DdvAtuh::urlEncodeExceptSlash($path);
   }
 
   //使用编码数组编码
-  public function urlEncode($value)
+  public static function urlEncode($value)
   {
     return DdvAtuh::urlEncode($value);
   }
   //使用编码数组编码
-  public function urlDecode($value)
+  public static function urlDecode($value)
   {
     return DdvAtuh::urlDecode($value);
   }
@@ -151,7 +151,7 @@ abstract class AuthAbstract
 
     $this->authDataDriver = &$authDataDriver ;
   }
-  protected function getAuthData($sessionId)
+  public function getAuthData($sessionId)
   {
     if (isset($authDatas[$sessionId])) {
       return $authDatas[$sessionId];
@@ -162,7 +162,7 @@ abstract class AuthAbstract
     $authDatas[$sessionId] = empty($res) ? null : unserialize($res);
     return $authDatas[$sessionId];
   }
-  protected function saveAuthData($sessionId, $data = null)
+  public function saveAuthData($sessionId, $data = null)
   {
     $authDatas[$sessionId] = $data;
     // 序列化数组

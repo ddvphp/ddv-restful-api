@@ -3,7 +3,7 @@
   /**
   * 
   */
-  class AuthSignAppAuthV2 extends \DdvPhp\DdvRestfulApi\Auth\AuthSignDdvAuthV2
+  class AuthSignAppAuthV2 extends AuthSignDdvAuthV2
   {
   }
  ?>

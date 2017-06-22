@@ -14,6 +14,7 @@ use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 class Auth
 {
 
+  private static $auth = null;
   public static $PERCENT_ENCODED_STRINGS = array();
   public static function auth(&$signInfo, &$config)
   {
@@ -63,11 +64,59 @@ class Auth
     }
     // 实例化该文件
     $authObj = new $className($a2, $signInfo, $config);
-    // 回收部分变量
-    unset($authorization, $v, $a2, $className, $file, $signInfo);
-    // 签名
-   $authObj->runSign();
+
+    if ($authObj instanceof \DdvPhp\DdvRestfulApi\Auth\AuthAbstract) {
+      self::$auth = $authObj;
+      // 回收部分变量
+      unset($authorization, $v, $a2, $className, $file, $signInfo);
+      // 签名
+      $authObj->runSign();
+    }else{
+      throw new AuthErrorException('Did not find inheritance \DdvPhp\DdvRestfulApi\Auth\AuthAbstract processing class', 'MUST_EXTENDS_AUTH_ABSTRACT', '403');
+    }
     
+  }
+  public static function getAuthData($sessionId)
+  {
+    $authObj = self::$auth;
+    if ($authObj instanceof \DdvPhp\DdvRestfulApi\Auth\AuthAbstract) {
+      return $authObj->getAuthData($sessionId);
+    }
+    throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
+    
+  }
+  public static function saveAuthData($sessionId, $data = null)
+  {
+    $authObj = self::$auth;
+    if ($authObj instanceof \DdvPhp\DdvRestfulApi\Auth\AuthAbstract) {
+      return $authObj->saveAuthData($sessionId, $data);
+    }
+    throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
+    
+  }
+  public static function getSignUrl($sessionId = null, $path = '/', $query = array(), $noSignQuery = array(), $method = 'GET', $headers = array(), $authClassName = null)
+  {
+    if (empty($sessionId)) {
+      throw new AuthErrorException('session id must input', 'MUST_INPUT_SESSION_ID', 400);
+    }
+    $authObj = self::$auth;
+    $authData = null;
+    if ($authObj instanceof \DdvPhp\DdvRestfulApi\Auth\AuthAbstract) {
+      $authData = $authObj->getAuthData($sessionId);
+    }
+    if (empty($authData)) {
+      throw new AuthErrorException('auth data not find', 'AUTH_DATA_NOT_FIND', 400);
+    }
+    if (empty($authClassName)) {
+      $authClassName = \DdvPhp\DdvRestfulApi\Auth\AuthSignDdvUrlV1::class;
+    }
+    if (!class_exists($authClassName)) {
+      throw new AuthErrorException('Authentication Version Class Not Find', 'AUTHENTICATION_VERSION_CLASS_NOT_FIND', 400);
+    }
+    if (!method_exists($authClassName, 'getSignUrl')) {
+      throw new AuthErrorException('Authentication Version Class Not support getSignUrl', 'AUTHENTICATION_VERSION_CLASS_NOT_SUPPORT_GET_SIGN_URL', 400);
+    }
+    return $authClassName::getSignUrl($sessionId, $authData, $path, $query, $noSignQuery, $method, $headers, $authClassName);
   }
   public static function urlEncodeInit()
   {

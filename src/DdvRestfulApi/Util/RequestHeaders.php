@@ -49,9 +49,9 @@ final class RequestHeaders
     if (!(empty(self::$header)||$isReload)) {
       return self::$header;
     }
-    $headersPrefix = str_replace('-','_',strtolower(self::$headersPrefix));
+    $headersPrefix = str_replace('-','_',strtolower(self::getHeadersPrefix()));
     $header = &self::$header;
-    $header['headersPrefix'] = self::$headersPrefix;
+    $header['headersPrefix'] = self::getHeadersPrefix();
     $header['sys'] = array();
     $header['x'] = array();
     $header['authorization'] = '';
@@ -100,9 +100,14 @@ final class RequestHeaders
       $header['sys']['host'] = isset($parseUrlTemp['host'])?$parseUrlTemp['host']:$header['sys']['host'];
       unset($parseUrlTemp);
     }catch(Exception $e){}
-    if(!empty($_GET[$headersPrefix.'authorization'])){
-      $header['authorization'] = $_GET[$headersPrefix.'authorization'] ;
-      unset($_GET[$headersPrefix.'authorization']);
+    $urlPrefix = self::getHeadersPrefix();
+    if(!empty($_GET[$urlPrefix.'authorization'])){
+      $header['authorization'] = $_GET[$urlPrefix.'authorization'] ;
+      unset($_GET[$urlPrefix.'authorization']);
+    }
+    if(!empty($_GET[$urlPrefix.'auth'])){
+      $header['authorization'] = $_GET[$urlPrefix.'auth'] ;
+      unset($_GET[$urlPrefix.'auth']);
     }
     //返回
     return $header ;
