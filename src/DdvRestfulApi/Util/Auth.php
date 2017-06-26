@@ -15,7 +15,6 @@ class Auth
 {
 
   private static $auth = null;
-  public static $PERCENT_ENCODED_STRINGS = array();
   public static function auth(&$signInfo, &$config)
   {
     if (empty($signInfo['header'])) {
@@ -118,62 +117,4 @@ class Auth
     }
     return $authClassName::getSignUrl($sessionId, $authData, $path, $query, $noSignQuery, $method, $headers, $authClassName);
   }
-  public static function urlEncodeInit()
-  {
-    // 根据RFC 3986，除了：
-    //   1.大小写英文字符
-    //   2.阿拉伯数字
-    //   3.点'.'、波浪线'~'、减号'-'以及下划线'_'
-    // 以外都要编码
-    self::$PERCENT_ENCODED_STRINGS = array();
-    for ($i = 0; $i < 256; ++$i) {
-      self::$PERCENT_ENCODED_STRINGS[$i] = sprintf("%%%02X", $i);
-    }
-
-        //a-z不编码
-    foreach (range('a', 'z') as $ch) {
-      self::$PERCENT_ENCODED_STRINGS[ord($ch)] = $ch;
-    }
-
-        //A-Z不编码
-    foreach (range('A', 'Z') as $ch) {
-      self::$PERCENT_ENCODED_STRINGS[ord($ch)] = $ch;
-    }
-
-        //0-9不编码
-    foreach (range('0', '9') as $ch) {
-      self::$PERCENT_ENCODED_STRINGS[ord($ch)] = $ch;
-    }
-
-        //以下4个字符不编码
-    self::$PERCENT_ENCODED_STRINGS[ord('-')] = '-';
-    self::$PERCENT_ENCODED_STRINGS[ord('.')] = '.';
-    self::$PERCENT_ENCODED_STRINGS[ord('_')] = '_';
-    self::$PERCENT_ENCODED_STRINGS[ord('~')] = '~';
-  }
-  //在uri编码中不能对'/'编码
-  public static function urlEncodeExceptSlash($path)
-  {
-    return str_replace("%2F", "/", self::urlEncode($path));
-  }
-
-  //使用编码数组编码
-  public static function urlEncode($value)
-  {
-    $result = '';
-    for ($i = 0; $i < strlen($value); ++$i) {
-      $result .= self::$PERCENT_ENCODED_STRINGS[ord($value[$i])];
-    }
-    return $result;
-  }
-
-  //使用编码数组编码
-
-  //使用编码数组编码
-  public static function urlDecode($value)
-  {
-    return urldecode($value);
-  }
 }
-Auth::urlEncodeInit();
-?>
