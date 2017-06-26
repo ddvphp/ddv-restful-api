@@ -159,9 +159,9 @@
       Cors::setHeaderFn(function($header){
         @header($header);
       });
-      if (is_array($this->config['cors']['allowHeader'])) {
-        $this->config['cors']['allowHeader'][] = $this->headersPrefix . '*';
-      }
+      Cors::configInit($this->config['cors']);
+      
+      $this->config['cors']['allowHeader'][] = $this->headersPrefix . '*';
       $res = Cors::run($this->config['cors']);
       if ($res===null) {
         die;
