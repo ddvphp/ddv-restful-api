@@ -53,7 +53,15 @@ class InitByLaravel
         $r['body'] = $content;
       }
     }else{
-      return $response;
+      try{
+        $r = array_merge($r , json_decode((string)$response->original,true));
+      }catch(\Exception $e){
+        try{
+          $r = array_merge($r , json_decode((string)$content,true));
+        }catch(\Exception $e){
+          return  $response;
+        }
+      }
     }
 
     if (empty($r['statusCode'])) {

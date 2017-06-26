@@ -5,8 +5,7 @@
   use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
   use \DdvPhp\DdvRestfulApi\Util\Auth as DdvAuth;
-  use \DdvPhp\DdvRestfulApi\Util\Cors as CorsException;
-  use \DdvPhp\DdvRestfulApi\Exception\OptionsCors as OptionsCorsException;
+  use \DdvPhp\DdvRestfulApi\Util\Cors as Cors;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
 
@@ -77,9 +76,6 @@
      */
     public function onHandler($r, $e)
     {
-      if ($e instanceof OptionsCorsException) {
-        die();
-      }
       // if ($e instanceof AuthEchoException) {
       //   die();
       // }
@@ -158,14 +154,19 @@
       return $this->signInfo;
     }
     // 授权模块
-    public function initCors ($config=array())
+    public function initCors ($config=null)
     {
       if (is_array($config)) {
-        foreach ($config as $key => $value) {
-          $this->config['cors'][$key] = $value;
-        }
+        $this->config['cors'] = array_merge($this->config['cors'], $config);
       }
-      return CorsException::init($this->config['cors']);
+      Cors::setHeaderFn(function($header){
+        @header($header);
+      });
+      $res = Cors::run($this->config['cors']);
+      if ($res===null) {
+        die;
+      }
+      return $res;
     }
     // getSessionId
     public function getSessionId ()
