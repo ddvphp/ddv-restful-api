@@ -37,7 +37,7 @@
 
     protected function __construct ($config = null)
     {
-      $headersPrefix = &$this->config['headersPrefix'];
+      $this->headersPrefix = &$this->config['headersPrefix'];
       $this->config($config);
       $this->responseDataInit();
     }
@@ -76,9 +76,6 @@
      */
     public function onHandler($r, $e)
     {
-      // if ($e instanceof AuthEchoException) {
-      //   die();
-      // }
       if (isset($r['isIgnoreError'])&&$r['isIgnoreError']===true) {
         return;
       }
@@ -162,6 +159,9 @@
       Cors::setHeaderFn(function($header){
         @header($header);
       });
+      if (is_array($this->config['cors']['allowHeader'])) {
+        $this->config['cors']['allowHeader'][] = $this->headersPrefix . '*';
+      }
       $res = Cors::run($this->config['cors']);
       if ($res===null) {
         die;
