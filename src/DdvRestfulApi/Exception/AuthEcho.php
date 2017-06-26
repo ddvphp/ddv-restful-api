@@ -2,7 +2,7 @@
 
 namespace DdvPhp\DdvRestfulApi\Exception;
 
-class AuthEcho extends \DdvPhp\DdvRestfulApi\Exception\RJsonSuccess
+class AuthEcho extends RJsonSuccess
 {
   // 魔术方法
   public function __construct($RJsonData = array() , $message = '', $errorId = 'OK' , $code = '200' )

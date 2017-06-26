@@ -4,7 +4,7 @@
   use \DdvPhp\DdvRestfulApi\Util\RequestParse as RequestParse;
   use \DdvPhp\DdvRestfulApi\Util\ResponseParse as ResponseParse;
   use \DdvPhp\DdvRestfulApi\Util\RequestHeaders as RequestHeaders;
-  use \DdvPhp\DdvRestfulApi\Util\Auth as DdvAuth;
+  use \DdvPhp\DdvRestfulApi\Util\Auth as Auth;
   use \DdvPhp\DdvRestfulApi\Util\Cors as Cors;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
@@ -30,7 +30,6 @@
     protected $config = array(
       'authDataDriver'=>'file',
       'headersPrefix'=>'x-ddv-',
-      'authDataDriverConfig'=>array(),
       'cors'=>array()
     );
 
@@ -160,7 +159,7 @@
         @header($header);
       });
       Cors::configInit($this->config['cors']);
-      
+
       $this->config['cors']['allowHeader'][] = $this->headersPrefix . '*';
       $res = Cors::run($this->config['cors']);
       if ($res===null) {
@@ -184,7 +183,7 @@
       if (!$this->authRun) {
         $this->authRun = true;
         $this->requestParse();
-        DdvAuth::auth($this->signInfo, $this->config);
+        Auth::auth($this->signInfo, $this->config);
       }
       return $this->signInfo;
     }
@@ -194,7 +193,7 @@
       if (!$this->authRun) {
         throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
       }
-      return DdvAuth::getSignUrl($this->getSessionId(), $path, $query, $noSignQuery, $method, $headers, $authClassName);
+      return Auth::getSignUrl($this->getSessionId(), $path, $query, $noSignQuery, $method, $headers, $authClassName);
     }
     // 获取已经索取的数据信息
     public function getAuthData ()
@@ -202,7 +201,7 @@
       if (!$this->authRun) {
         throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
       }
-      return DdvAuth::getAuthData($this->getSessionId());
+      return Auth::getAuthData($this->getSessionId());
     }
     // 获取已经索取的数据信息
     public function saveAuthData ($save)
@@ -210,7 +209,7 @@
       if (!$this->authRun) {
         throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
       }
-      return DdvAuth::saveAuthData($this->getSessionId(), $save);
+      return Auth::saveAuthData($this->getSessionId(), $save);
     }
     // 获取实例化对象
     public static function getInstance($config = array(), $class = null)
