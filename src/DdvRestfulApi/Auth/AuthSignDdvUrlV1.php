@@ -228,7 +228,7 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $headersKeys = empty($headers)?array():array_keys($headers);
     
     // 编码
-    $query = self::buildQuery($query);
+    $query = DdvUrl::buildQuery($query);
     // 重新排序编码
     $canonicalQuery = self::canonicalQuerySort($query);
 
@@ -318,8 +318,5 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $canonicalQuery = implode('&', $tempNew) ;
     unset($temp,$tempI,$tempKey,$tempValue,$tempNew);
     return $canonicalQuery;
-  }
-  private static function buildQuery($queryData=array()){
-    return http_build_query($queryData);
   }
 }
