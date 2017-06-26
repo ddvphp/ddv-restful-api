@@ -111,7 +111,7 @@ class Auth
           $urlObj['path'] = $path;
       }
     }
-    $redirect_uri = DdvUrl::build($urlObj);
+    return DdvUrl::build($urlObj);
   }
   public static function getSignUrl($sessionId = null, $path = '/', $query = array(), $noSignQuery = array(), $method = 'GET', $headers = array(), $authClassName = null)
   {
