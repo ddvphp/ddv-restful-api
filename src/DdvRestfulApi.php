@@ -28,9 +28,10 @@ class DdvRestfulApi
   protected $signInfo = null;
   protected $authRun = false ;
   protected $config = array(
-    'authDataDriver'=>'file',
+    'cors'=>array(),
     'headersPrefix'=>'x-ddv-',
-    'cors'=>array()
+    'authDataDriver'=>'file',
+    'authDataDriverConfig'=>array()
   );
 
 
@@ -186,6 +187,14 @@ class DdvRestfulApi
       Auth::auth($this->signInfo, $this->config);
     }
     return $this->signInfo;
+  }
+  // 获取已经索取的数据信息
+  public function getSignUrlByUrl ($url = '/', $noSignQuery = array(), $method = 'GET', $query = array(), $headers = array(), $authClassName = null)
+  {
+    if (!$this->authRun) {
+      throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
+    }
+    return Auth::getSignUrlByUrl($this->getSessionId(), $url, $noSignQuery, $method, $query, $headers, $authClassName);
   }
   // 获取已经索取的数据信息
   public function getSignUrl ($path = '/', $query = array(), $noSignQuery = array(), $method = 'GET', $headers = array(), $authClassName = null)

@@ -1,6 +1,7 @@
 <?php
 
 namespace DdvPhp\DdvRestfulApi\Util;
+use \DdvPhp\DdvUrl as DdvUrl;
 use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 
 
@@ -92,6 +93,25 @@ class Auth
     }
     throw new AuthErrorException('Auth authentication must be performed first', 'MUST_RUN_AUTH_VERIFICATION', 400);
     
+  }
+  // 获取已经索取的数据信息
+  public static function getSignUrlByUrl ($sessionId = null, $url = '/', $noSignQuery = array(), $method = 'GET', $query = array(), $headers = array(), $authClassName = null)
+  {
+    $urlObj = DdvUrl::parse($url);
+    if($urlObj['query']){
+      $params = DdvUrl::parseQuery($urlObj['query']);
+      $params = is_array($params) ? $params : array();
+      $params = array_merge($params, $query);
+      $path = self::getSignUrl($sessionId, $urlObj['path'], $params, $noSignQuery, $method, $headers, $authClassName);
+      $index = strpos($path, '?');
+      if ( $index !== false){
+          $urlObj['path'] = substr($path, 0, $index);
+          $urlObj['query'] = substr($path, $index+1);
+      }else{
+          $urlObj['path'] = $path;
+      }
+    }
+    $redirect_uri = DdvUrl::build($urlObj);
   }
   public static function getSignUrl($sessionId = null, $path = '/', $query = array(), $noSignQuery = array(), $method = 'GET', $headers = array(), $authClassName = null)
   {

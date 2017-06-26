@@ -1,6 +1,7 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Auth;
 use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
+use \DdvPhp\DdvUrl as DdvUrl;
 /**
 * 
 */
@@ -83,7 +84,7 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $canonicalUri = isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'';
     //去除//
     $canonicalUri = substr($canonicalUri, 0, 2)==='//'?substr($canonicalUri, 1):$canonicalUri;
-    $canonicalUris = parse_url($canonicalUri);
+    $canonicalUris = DdvUrl::parse($canonicalUri);
     $canonicalPath = isset($canonicalUris['path'])?$canonicalUris['path']:'';
     //取得query
     $canonicalQuery = isset($canonicalUris['query'])?$canonicalUris['query']:'';
