@@ -59,7 +59,9 @@ class InitByLaravel
         try{
           $r = array_merge($r , json_decode((string)$content,true));
         }catch(\Exception $e){
-          return  $response;
+          if (!empty($response->original)) {
+            return  $response;
+          }
         }
       }
     }
