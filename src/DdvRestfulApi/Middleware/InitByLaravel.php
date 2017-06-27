@@ -79,7 +79,7 @@ class InitByLaravel
 
     $response->original = $r ;
     $response->setStatusCode($r['statusCode'], $r['message']);
-    $response->setContent($r);
+    $response->setContent(json_encode($r));
     return $response;
   }
 }
