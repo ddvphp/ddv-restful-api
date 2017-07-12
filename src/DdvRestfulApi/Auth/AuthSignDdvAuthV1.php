@@ -70,6 +70,12 @@
 
       // **** 处理
 
+      if($this->signInfo['isContentMd5True']!==true){
+          throw new AuthErrorException('Content Md5 Error','CONTENT_MD5_ERROR',403);
+      }
+      if($this->signInfo['isContentLengthTrue']!==true){
+          throw new AuthErrorException('Content Length Error','CONTENT_LENGTH_ERROR',403);
+      }
       //签名通过，接下来检测content_md5
       if($sessionSignCheck!==$clientSign){
         $errorData = array('debugSign'=>array());

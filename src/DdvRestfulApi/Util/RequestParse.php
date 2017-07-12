@@ -21,11 +21,15 @@ final class RequestParse
     //获取头
     $info['header'] = RequestHeaders::getHttpHeadersAsSysXAuth();
     $info['header'] = is_array($info['header'])?$info['header']:array();
+    $contentMd5 = '';
+    $contentLength = 0;
     if(empty($info['header'])||empty($info['header']['sys'])||empty($info['header']['sys']['content-length'])||$info['header']['sys']['content-length']<1){
       $info['isContentMd5True'] = true;
       return $info;
+    }else{
+      $contentMd5 = $info['header']['sys']['content-md5'];
+      $contentLength = $info['header']['sys']['content-length'];
     }
-    $contentMd5 = $info['header']['sys']['content-length'];
     $params = array();
     //获取原始的类型
     $t = self::contentTypeParse($info['header']['sys']['content-type']);
@@ -66,6 +70,7 @@ final class RequestParse
     $info['dataMd5Hex'] = $t['dataMd5Hex'];
     $info['dataMd5Base64'] = $t['dataMd5Base64'];
     $info['isContentMd5True'] = $contentMd5===$info['dataMd5Base64'] || $contentMd5===$info['dataMd5Hex'];
+    $info['isContentLengthTrue'] = true;
 
     return $info;
   }
@@ -479,4 +484,3 @@ final class RequestParse
     return $r;
   }
 }
-?>
