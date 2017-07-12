@@ -4,10 +4,10 @@
   /**
   * 
   */
-  class AuthSignDdvAuthV2 extends AuthAbstract
+  class AuthSignDdvAuthV1 extends AuthAbstract
   {
     private $regAuth = 
-      '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/(\d+)\/([\w\-\;]+)\/([\da-f]{64})$/i';
+      '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/(\d+)\/([\w\-\;]+|)\/([\da-f]{64})$/i';
     protected function sign()
     {
       // 试图旧授权信息
@@ -159,6 +159,9 @@
             }else if (isset($_SERVER[$authHeaderKey])) {
               $signHeaders[$signHeaderKeys[$i]] = $_SERVER[$authHeaderKey];
               unset($signBaseHeadersSys[$authHeaderKey]);
+            }else if(empty($signHeaderKeys[$i])){
+                unset($signBaseHeadersSys[$signHeaderKeys[$i]]);
+                unset($signHeaderKeys[$i]);
             }else{
               throw new AuthErrorException('I did not find your authorization header['.$signHeaderKeys[$i].']','AUTHORIZATION_HEADERS_S_NOT_FIND',403);
             }
@@ -258,5 +261,3 @@
       );
     }
   }
-
- ?>

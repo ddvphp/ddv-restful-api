@@ -1,9 +1,8 @@
 <?php 
-  namespace DdvPhp\DdvRestfulApi\Auth;
-  /**
-  * 
-  */
-  class AuthSignAppAuthV2 extends AuthSignDdvAuthV2
-  {
-  }
- ?>
+namespace DdvPhp\DdvRestfulApi\Auth;
+/**
+* 
+*/
+class AuthSignAppAuthV2 extends AuthSignDdvAuthV1
+{
+}
