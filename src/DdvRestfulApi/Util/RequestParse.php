@@ -21,10 +21,13 @@ final class RequestParse
     //获取头
     $info['header'] = RequestHeaders::getHttpHeadersAsSysXAuth();
     $info['header'] = is_array($info['header'])?$info['header']:array();
+    $info['isContentMd5True'] = false;
+    $info['isContentLengthTrue'] = false;
     $contentMd5 = '';
     $contentLength = 0;
     if(empty($info['header'])||empty($info['header']['sys'])||empty($info['header']['sys']['content-length'])||$info['header']['sys']['content-length']<1){
       $info['isContentMd5True'] = true;
+      $info['isContentLengthTrue'] = true;
       return $info;
     }else{
       $contentMd5 = $info['header']['sys']['content-md5'];
