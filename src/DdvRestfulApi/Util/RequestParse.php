@@ -28,7 +28,7 @@ final class RequestParse
       return $info;
     }else{
       $contentMd5 = $info['header']['sys']['content-md5'];
-      $contentLength = $info['header']['sys']['content-length'];
+      $contentLength = intval($info['header']['sys']['content-length']);
     }
     $params = array();
     //获取原始的类型
