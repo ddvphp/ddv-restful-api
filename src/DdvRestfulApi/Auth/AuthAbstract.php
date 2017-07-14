@@ -167,4 +167,71 @@ abstract class AuthAbstract
     $this->authDataDriverObj->close();
     $this->authDataDriverObj = null;
   }
+  public function getSignHeaders($signHeaderKeys = array())
+  {
+    $signHeaderKeysLen = count($signHeaderKeys);
+    //把临时授权键名的-替换为_ 因为php的特殊原因
+    $headerKeyPrefix = str_replace('-','_',$this->signBaseHeadersPrefix);
+    $headerKeyPrefixLen = strlen($headerKeyPrefix);
+    $signBaseHeadersSys = is_array($this->signBaseHeadersSys)?$this->signBaseHeadersSys:array();
+    $signBaseHeadersX = is_array($this->signBaseHeadersX)?$this->signBaseHeadersX:array();
+    $signHeaders = array();
+    for ($i=0; $i < $signHeaderKeysLen; $i++) {
+      //把临时授权键名的-替换为_ 因为php的特殊原因
+      $authHeaderKey = strtolower(str_replace('-','_',$signHeaderKeys[$i]?$signHeaderKeys[$i]:''));
+      //判断是否符合自定义头
+      if (substr($authHeaderKey, 0, $headerKeyPrefixLen) == $headerKeyPrefix) {
+
+        //试图获取自定义头
+        if (!isset($signBaseHeadersX[$authHeaderKey])) {
+          //自定义头获取失败，抛出异常
+          throw new AuthErrorException('I did not find your authorization header['.$signHeaderKeys[$i].']','AUTHORIZATION_HEADERS_X_NOT_FIND',403);
+        }
+        $signHeaders[$signHeaderKeys[$i]] = $signBaseHeadersX[$authHeaderKey];
+        unset($signBaseHeadersX[$authHeaderKey]);
+      }else{
+        if (isset($signBaseHeadersSys[$authHeaderKey])) {
+          $signHeaders[$signHeaderKeys[$i]] = $signBaseHeadersSys[$authHeaderKey];
+          unset($signBaseHeadersSys[$authHeaderKey]);
+        }else{
+          //如果没法直接获取就加http_试试，因为php的特殊性
+          $authHeaderKey = 'HTTP_'.strtoupper($authHeaderKey);
+          if(isset($signBaseHeadersSys[$signHeaderKeys[$i]])){
+            $signHeaders[$signHeaderKeys[$i]] = $signBaseHeadersSys[$signHeaderKeys[$i]];
+            unset($signBaseHeadersSys[$signHeaderKeys[$i]]);
+          }else if (isset($_SERVER[$authHeaderKey])) {
+            $signHeaders[$signHeaderKeys[$i]] = $_SERVER[$authHeaderKey];
+            unset($signBaseHeadersSys[$authHeaderKey]);
+          }else if(empty($signHeaderKeys[$i])){
+            unset($signBaseHeadersSys[$signHeaderKeys[$i]]);
+            unset($signHeaderKeys[$i]);
+          }else{
+            throw new AuthErrorException('I did not find your authorization header['.$signHeaderKeys[$i].']','AUTHORIZATION_HEADERS_S_NOT_FIND',403);
+          }
+        }
+      }
+    }
+    //检测是否还有没有签名的自定义头
+    if (!empty($signBaseHeadersX)) {
+      throw new AuthErrorException('The following header information you have not authenticated['. implode(',',$signBaseHeadersX).']','AUTHORIZATION_HEADERS_X_NOT_ALL_SIGNATURES',403);
+    }
+    if (isset($signBaseHeadersSys['content-length'])&&intval($signBaseHeadersSys['content-length'])==0) {
+      unset($signBaseHeadersSys['content-md5'], $signBaseHeadersSys['content-type'], $signBaseHeadersSys['content-length']);
+    }
+    //检测是否还有没有签名的系统头
+    if (!empty($signBaseHeadersX)) {
+      throw new AuthErrorException('The following header information you have not authenticated[content_md5 or content_type or content_length]','AUTHORIZATION_HEADERS_S_NOT_ALL_SIGNATURES',403);
+    }
+    return $signHeaders;
+  }
+  public function checkContentMd5True(){
+    if($this->signInfo['isContentLengthTrue']!==true){
+      throw new AuthErrorException('Content Length Error','CONTENT_LENGTH_ERROR',403);
+    }
+  }
+  public function checkContentLengthTrue(){
+    if($this->signInfo['isContentLengthTrue']!==true){
+      throw new AuthErrorException('Content Length Error','CONTENT_LENGTH_ERROR',403);
+    }
+  }
 }
