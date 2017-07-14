@@ -1,5 +1,6 @@
 <?php 
 namespace DdvPhp\DdvRestfulApi\Auth;
+use DdvPhp\DdvAuth\Sign;
 use \DdvPhp\DdvUrl as DdvUrl;
 use \DdvPhp\DdvRestfulApi\Util\Auth as DdvAtuh;
 use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
@@ -67,16 +68,9 @@ abstract class AuthAbstract
   //生成session_card
   public function createSessionCard() {
     $ua = isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : microtime();
-    $session_card = strtolower( substr(md5(uniqid(mt_rand(), true)),15,4).'-'.$this->createGuid().'-'.substr(md5($ua),15,8) );
+    $session_card = strtolower( substr(md5(uniqid(mt_rand(), true)),15,4).'-'.Sign::createGuid().'-'.substr(md5($ua),15,8) );
     $session_card = str_replace(substr($session_card,13,6),'-5555-',$session_card);
     return $session_card;
-  }
-  //生成guid
-  public function createGuid() {
-    $charid = strtolower(md5(uniqid(mt_rand(), true)));
-    $hyphen = chr(45);// "-"
-    $uuid = substr($charid, 0, 8).$hyphen.substr($charid, 8, 4).$hyphen.substr($charid,12, 4).$hyphen.substr($charid,16, 4).$hyphen.substr($charid,20,12);
-    return $uuid;
   }
   //生成session_key
   public function createSessionKey($session_card=null) {
@@ -84,8 +78,8 @@ abstract class AuthAbstract
     $ua = isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : microtime();
     $session_key = strtolower( 
         substr(md5($this->createSessionCard().$session_card),7,4)
-        .'-'.substr(md5($this->createSessionCard().mt_rand().$session_card.$this->createGuid()),7,12)
-        .'-'.substr(md5(uniqid(mt_rand(), true)),15,4).'-'.$this->createGuid().'-'.substr(md5($ua),15,8)
+        .'-'.substr(md5($this->createSessionCard().mt_rand().$session_card.Sign::createGuid()),7,12)
+        .'-'.substr(md5(uniqid(mt_rand(), true)),15,4).'-'.Sign::createGuid().'-'.substr(md5($ua),15,8)
         .'-'.substr(md5(uniqid(mt_rand(), true).$session_card),7,12)
         .'-'.substr(md5(mt_rand().$session_card),7,4)
         .'-'.substr(md5($session_card.mt_rand().$session_card),7,8)
@@ -107,13 +101,13 @@ abstract class AuthAbstract
       $pp = isset($_SERVER['REMOTE_ADDR'])? $_SERVER['REMOTE_ADDR'] : microtime();
       $pp .= isset($_SERVER['HTTP_CLIENT_IP'])? $_SERVER['HTTP_CLIENT_IP'] : microtime();
       $pp .= isset($_SERVER['HTTP_X_FORWARDED_FOR'])? $_SERVER['HTTP_X_FORWARDED_FOR'] : microtime();
-      $sessionId = substr(md5(microtime().$pp.mt_rand().$this->createGuid()), 0, 3);
+      $sessionId = substr(md5(microtime().$pp.mt_rand().Sign::createGuid()), 0, 3);
       $sessionId .= substr(md5($pp.microtime().mt_rand().$sidLength.$randomSid), 0, 3);
       $sessionId .= substr(md5(microtime().$pp.mt_rand().$pp.$this->createSessionKey().$sessionId), 0, 3);
       $sessionId .= substr(md5(microtime().$sessionId.mt_rand().$pp.$randomSid), 0, 3);
     }
     $sessionId .= substr(rtrim(strtr($randomSid, '+/', ',-'), '='), 0, $sidLength-($sidLength>12?12:0));
-    $sessionId = substr($randomSid, 0, $sidLength);
+    $sessionId = substr($sessionId, 0, $sidLength);
 
     if ($this->getAuthData($sessionId)!==null) {
       return $this->generateSessionId();
