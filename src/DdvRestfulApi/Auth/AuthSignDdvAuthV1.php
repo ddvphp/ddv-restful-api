@@ -1,6 +1,8 @@
 <?php 
   namespace DdvPhp\DdvRestfulApi\Auth;
   use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
+  use \DdvPhp\DdvUrl;
+  use \DdvPhp\DdvAuth\Sign;
   /**
   * 
   */
@@ -31,7 +33,7 @@
         // 需要签名的头的key
         $signHeaderKeysStr
       ) = $this->parseAuth();
-      $signHeaderKeys = $this->getSignHeaderKeysByStr($signHeaderKeysStr);
+      $signHeaderKeys = Sign::getHeaderKeysByStr($signHeaderKeysStr);
       // 授权数据
       $data = $this->getAuthData($sessionId);
 
@@ -55,13 +57,13 @@
       $canonicalQuery = isset($canonicalUris['query'])?$canonicalUris['query']:'';
       //取得path
       $canonicalPath = substr($canonicalPath, 0, 1)==='/'?$canonicalPath:('/'.$canonicalPath);
-      $canonicalPath = self::urlEncodeExceptSlash($canonicalPath);
+      $canonicalPath = DdvUrl::urlEncodeExceptSlash($canonicalPath);
 
       // 重新排序编码
-      $canonicalQuery = self::canonicalQuerySort($canonicalQuery);
+      $canonicalQuery = Sign::canonicalQuerySort($canonicalQuery);
 
       // 获取签名头
-      $canonicalHeaders = self::getCanonicalHeaders($signHeaders);
+      $canonicalHeaders = Sign::getCanonicalHeaders($signHeaders);
 
       //生成需要签名的信息体
       $canonicalRequest = "{$this->method}\n{$canonicalPath}\n{$canonicalQuery}\n{$canonicalHeaders}";
@@ -93,43 +95,6 @@
       $this->signInfo['sessionId'] = $sessionId;
       return true;
     }
-    private static function getCanonicalHeaders($signHeaders = array())
-    {
-      //重新编码
-      $canonicalHeader = array();
-      foreach ($signHeaders as $key => $value) {
-        $canonicalHeader[] = strtolower(self::urlEncode(trim($key))).':'.self::urlEncode(trim($value));
-      }
-      sort($canonicalHeader);
-      //服务器模拟客户端生成的头
-      $canonicalHeader = implode("\n", $canonicalHeader) ;
-      return $canonicalHeader;
-    }
-    private static function canonicalQuerySort($canonicalQuery = '')
-    {
-      //拆分get请求的参数
-      $canonicalQuery = empty($canonicalQuery) ? array() : explode('&',$canonicalQuery);
-      $tempNew = array();
-      $temp = '';
-      $tempI = '';
-      $tempKey = '';
-      $tempValue = '';
-      foreach ($canonicalQuery as $key => $temp) {
-        $temp = self::urlDecode($temp);
-        $tempI = strpos($temp,'=');
-        if (strpos($temp,'=')===false) {
-          continue;
-        }
-        $tempKey = substr($temp, 0,$tempI);
-        $tempValue = substr($temp, $tempI+1);
-        
-        $tempNew[] = self::urlEncode($tempKey).'='.self::urlEncode($tempValue);
-      }
-      sort($tempNew);
-      $canonicalQuery = implode('&', $tempNew) ;
-      unset($temp,$tempI,$tempKey,$tempValue,$tempNew);
-      return $canonicalQuery;
-    }
     private function getSignHeaders($signHeaderKeys = array())
     {
       $signHeaderKeysLen = count($signHeaderKeys);
@@ -141,7 +106,7 @@
       $signHeaders = array();
       for ($i=0; $i < $signHeaderKeysLen; $i++) {
         //把临时授权键名的-替换为_ 因为php的特殊原因
-        $authHeaderKey = str_replace('-','_',$signHeaderKeys[$i]?$signHeaderKeys[$i]:'');
+        $authHeaderKey = strtolower(str_replace('-','_',$signHeaderKeys[$i]?$signHeaderKeys[$i]:''));
         //判断是否符合自定义头
         if (substr($authHeaderKey, 0, $headerKeyPrefixLen) == $headerKeyPrefix) {
 
@@ -186,25 +151,6 @@
         throw new AuthErrorException('The following header information you have not authenticated[content_md5 or content_type or content_length]','AUTHORIZATION_HEADERS_S_NOT_ALL_SIGNATURES',403);
       }
       return $signHeaders;
-    }
-    private function getSignHeaderKeysByStr($signHeaderKeysStr = '')
-    {
-      //被签名的头的key，包括自定义和系统
-      $signHeaderKeysStr = (is_string($signHeaderKeysStr)||is_numeric($signHeaderKeysStr)) ? (string)$signHeaderKeysStr : '';
-      //拆分头键名为数组 方便后期处理
-      $signHeaderKeys = explode(';', $signHeaderKeysStr);
-      //定义一个空数组来存储对授权头key预处理
-      $signHeaderKeysNew = array();
-      //遍历授权头的key
-      foreach ($signHeaderKeys as $key => $auth_header) {
-        //去空格，转小写
-        $signHeaderKeysNew[]=strtolower(trim($auth_header));
-      }
-      //把处理后的头的key覆盖原来的变量，释放内存
-      $signHeaderKeys = $signHeaderKeysNew;unset($signHeaderKeysNew);
-      //移除数组中重复的值
-      $signHeaderKeys = array_unique($signHeaderKeys);
-      return $signHeaderKeys;
     }
     private function parseAuth()
     {

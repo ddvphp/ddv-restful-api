@@ -2,6 +2,7 @@
 namespace DdvPhp\DdvRestfulApi\Auth;
 use \DdvPhp\DdvRestfulApi\Exception\AuthError as AuthErrorException;
 use \DdvPhp\DdvUrl as DdvUrl;
+use \DdvPhp\DdvAuth\Sign;
 /**
 * 
 */
@@ -90,10 +91,10 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $canonicalQuery = isset($canonicalUris['query'])?$canonicalUris['query']:'';
     //取得path
     $canonicalPath = substr($canonicalPath, 0, 1)==='/'?$canonicalPath:('/'.$canonicalPath);
-    $canonicalPath = self::urlEncodeExceptSlash($canonicalPath);
+    $canonicalPath = DdvUrl::urlEncodeExceptSlash($canonicalPath);
 
     // 重新排序编码
-    $canonicalQuery = self::canonicalQuerySort($canonicalQuery);
+    $canonicalQuery = Sign::canonicalQuerySort($canonicalQuery);
     if ($canonicalQuery) {
       $tPrefix = $this->signBaseHeadersPrefix;
       $authPrefixs = array(
@@ -114,7 +115,7 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     }
 
     // 获取签名头
-    $canonicalHeaders = self::getCanonicalHeaders($signHeaders);
+    $canonicalHeaders = Sign::getCanonicalHeaders($signHeaders);
     //生成需要签名的信息体
     $canonicalRequest = "{$this->method}\n{$canonicalPath}\n{$canonicalQuery}\n{$canonicalHeaders}";
 
@@ -223,14 +224,14 @@ class AuthSignDdvUrlV1 extends AuthAbstract
         $query = array_merge($pathQuery, $query);
       }
     }
-    $path = self::urlEncodeExceptSlash($path);
+    $path = DdvUrl::urlEncodeExceptSlash($path);
     $noSignQuery = empty($noSignQuery)?array():$noSignQuery;
     $headersKeys = empty($headers)?array():array_keys($headers);
     
     // 编码
     $query = DdvUrl::buildQuery($query);
     // 重新排序编码
-    $canonicalQuery = self::canonicalQuerySort($query);
+    $canonicalQuery = Sign::canonicalQuerySort($query);
 
     if ($canonicalQuery) {
       $canonicalQueryArray = explode('&', $canonicalQuery);
@@ -248,7 +249,7 @@ class AuthSignDdvUrlV1 extends AuthAbstract
       $url.='?'.$query;
     }
     // 获取签名头
-    $canonicalHeaders = self::getCanonicalHeaders($headers);
+    $canonicalHeaders = Sign::getCanonicalHeaders($headers);
 
     // 授权字符串
     $authString = "ddv-url-v1/{$sessionId}/{$sessionCard}/{$signTime}/{$expiredTimeOffset}";
@@ -280,43 +281,5 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $ddvRestfulApi = \DdvPhp\DdvRestfulApi::getInstance();
     $url .= (strpos($url, '?')===false ? '?' : '&').$ddvRestfulApi->getHeadersPrefix().'auth=ddv-url-v1%2F'.$signBase64;
     return $url;
-  }
-
-  private static function getCanonicalHeaders($signHeaders = array())
-  {
-    //把系统头和自定义头合并
-    $canonicalHeader = array();
-    foreach ($signHeaders as $key => $value) {
-      $canonicalHeader[] = strtolower(self::urlEncode(trim($key))).':'.self::urlEncode(trim($value));
-    }
-    sort($canonicalHeader);
-    //服务器模拟客户端生成的头
-    $canonicalHeader = implode("\n", $canonicalHeader) ;
-    return $canonicalHeader;
-  }
-  private static function canonicalQuerySort($canonicalQuery = '')
-  {
-    //拆分get请求的参数
-    $canonicalQuery = empty($canonicalQuery) ? array() : explode('&',$canonicalQuery);
-    $tempNew = array();
-    $temp = '';
-    $tempI = '';
-    $tempKey = '';
-    $tempValue = '';
-    foreach ($canonicalQuery as $key => $temp) {
-      $temp = self::urlDecode($temp);
-      $tempI = strpos($temp,'=');
-      if (strpos($temp,'=')===false) {
-        continue;
-      }
-      $tempKey = substr($temp, 0,$tempI);
-      $tempValue = substr($temp, $tempI+1);
-      
-      $tempNew[] = self::urlEncode($tempKey).'='.self::urlEncode($tempValue);
-    }
-    sort($tempNew);
-    $canonicalQuery = implode('&', $tempNew) ;
-    unset($temp,$tempI,$tempKey,$tempValue,$tempNew);
-    return $canonicalQuery;
   }
 }
