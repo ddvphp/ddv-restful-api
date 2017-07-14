@@ -48,7 +48,7 @@
           $signHeaderKeysStr,
           // 客户端签名
           $clientSign
-          ) = $auths;
+      ) = $auths;
       // 授权数据
       $auth = new AuthSha256();
 
