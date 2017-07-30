@@ -8,12 +8,31 @@ use \DdvPhp\DdvAuth\AuthSha256;
  */
 class AuthSignDdvAuthV1 extends AuthAbstract
 {
+  private static $accessKeyId = null;
+  private static $sessionCard = null;
+  private static $requestId = null;
   private $regAuth =
       '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/(\d+)\/([\w\-\;]+|)\/([\da-f]{64})$/i';
   protected function sign()
   {
     // 试图旧授权信息
     $this->checkAuth();
+  }
+  // 判断是否通过该授权通过的
+  public static function is(){
+      return !empty(self::$accessKeyId);
+  }
+  public static function getAccessKeyId(){
+      return self::$accessKeyId;
+  }
+  public static function getSessionId(){
+      return self::$accessKeyId;
+  }
+  public static function getRequestId(){
+      return self::$requestId;
+  }
+  public static function getSessionCard(){
+      return self::$sessionCard;
   }
   private function checkAuth()
   {
@@ -91,6 +110,9 @@ class AuthSignDdvAuthV1 extends AuthAbstract
       $errorData['debugSign']['sign.server'] = $authArray['sign'];
       throw new AuthErrorException('Signature authentication failure', 'AUTHORIZATION_SIGNATURE_FAILURE', 403, $errorData);
     }
+    self::$requestId = $requestId;
+    self::$accessKeyId = $sessionId;
+    self::$sessionCard = $sessionCard;
     $this->signInfo['sessionId'] = $sessionId;
     return true;
   }

@@ -8,10 +8,29 @@ use \DdvPhp\DdvAuth\Sign;
 */
 class AuthSignDdvUrlV1 extends AuthAbstract
 {
+  private static $accessKeyId = null;
+  private static $sessionCard = null;
+  private static $requestId = null;
   protected function sign()
   {
     // 试图旧授权信息
     $this->checkAuth();
+  }
+  // 判断是否通过该授权通过的
+  public static function is(){
+      return !empty(self::$accessKeyId);
+  }
+  public static function getAccessKeyId(){
+      return self::$accessKeyId;
+  }
+  public static function getSessionId(){
+      return self::$accessKeyId;
+  }
+  public static function getRequestId(){
+      return self::$requestId;
+  }
+  public static function getSessionCard(){
+      return self::$sessionCard;
   }
   private function checkAuth()
   {
@@ -145,6 +164,9 @@ class AuthSignDdvUrlV1 extends AuthAbstract
       throw new AuthErrorException('Signature authentication failure', 'AUTHORIZATION_SIGNATURE_FAILURE', 403, $errorData);
     }
 
+    self::$requestId = $requestId;
+    self::$accessKeyId = $sessionId;
+    self::$sessionCard = $sessionCard;
     $this->signInfo['sessionId'] = $sessionId;
     return true;
   }

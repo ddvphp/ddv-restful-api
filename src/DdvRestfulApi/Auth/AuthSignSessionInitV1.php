@@ -7,10 +7,29 @@
   */
   class AuthSignSessionInitV1 extends AuthAbstract
   {
+    private static $accessKeyId = null;
+    private static $sessionCard = null;
+    private static $requestId = null;
     private $regAuth =
       '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([0-9a-zA-Z,-]+)\/([\da-f]{4}-[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}-[\da-f]{8})\/([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}Z)\/([\d]+)\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/([\da-f]{64})$/i';
     private $regSessionId = '/^([0-9a-zA-Z,-]+)$/i';
     private $regRequestId = '/^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})$/i';
+    // 判断是否通过该授权通过的
+    public static function is(){
+        return !empty(self::$accessKeyId);
+    }
+    public static function getAccessKeyId(){
+        return self::$accessKeyId;
+    }
+    public static function getSessionId(){
+        return self::$accessKeyId;
+    }
+    public static function getRequestId(){
+        return self::$requestId;
+    }
+    public static function getSessionCard(){
+        return self::$sessionCard;
+    }
     protected function sign()
     {
       try {
@@ -73,6 +92,9 @@
       $data['key'] = empty($data['key']) ? $this->createSessionKey($data['card']) : $data['key'];
       $this->getAuthData($sessionId);
       $this->saveAuthData($sessionId, $data);
+      self::$requestId = $requestId;
+      self::$accessKeyId = $sessionId;
+      self::$sessionCard = $data['card'];
       return array(
         // 通过
         'state' => true,
