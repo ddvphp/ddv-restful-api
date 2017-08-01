@@ -10,7 +10,6 @@ class AuthSignDdvUrlV1 extends AuthAbstract
 {
   private static $accessKeyId = null;
   private static $sessionCard = null;
-  private static $requestId = null;
   protected function sign()
   {
     // 试图旧授权信息
@@ -25,9 +24,6 @@ class AuthSignDdvUrlV1 extends AuthAbstract
   }
   public static function getSessionId(){
       return self::$accessKeyId;
-  }
-  public static function getRequestId(){
-      return self::$requestId;
   }
   public static function getSessionCard(){
       return self::$sessionCard;
@@ -164,7 +160,6 @@ class AuthSignDdvUrlV1 extends AuthAbstract
       throw new AuthErrorException('Signature authentication failure', 'AUTHORIZATION_SIGNATURE_FAILURE', 403, $errorData);
     }
 
-    self::$requestId = $requestId;
     self::$accessKeyId = $sessionId;
     self::$sessionCard = $sessionCard;
     $this->signInfo['sessionId'] = $sessionId;
