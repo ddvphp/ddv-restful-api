@@ -50,7 +50,7 @@ class InitByLaravel
       try{
         $r = array_merge($r , json_decode(json_encode($response->original),true));
       }catch(\Exception $e){
-        $r['body'] = $content;
+        return $response;
       }
     }else{
       try{
@@ -64,6 +64,9 @@ class InitByLaravel
           }
         }
       }
+    }
+    if (empty($r)){
+      return $response;
     }
 
     if (empty($r['statusCode'])) {
