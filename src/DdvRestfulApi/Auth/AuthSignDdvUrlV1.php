@@ -69,7 +69,8 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     } catch (Exception $e) {
       throw new AuthErrorException('Authentication json decode error','AUTHENTICATION_JSON_DECODE_ERROR',403);
     }
-    $noSignQuery = (!empty($authorization[3]))&&is_array($authorization[3])?$authorization[3]:array();
+    $noSignQuery = empty($authorization[3])?array():$authorization[3];
+    $noSignQuery = ($noSignQuery===true)||is_array($authorization[3])?$authorization[3]:array();
     $headersKeys = (!empty($authorization[4]))&&is_array($authorization[4])?$authorization[4]:array();
 
     try {
@@ -108,25 +109,29 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $canonicalPath = substr($canonicalPath, 0, 1)==='/'?$canonicalPath:('/'.$canonicalPath);
     $canonicalPath = DdvUrl::urlEncodeExceptSlash($canonicalPath);
 
-    // 重新排序编码
-    $canonicalQuery = Sign::canonicalQuerySort($canonicalQuery);
-    if ($canonicalQuery) {
-      $tPrefix = $this->signBaseHeadersPrefix;
-      $authPrefixs = array(
-        strtolower($tPrefix.'auth'),
-        strtolower($tPrefix.'authorization'),
-      );
-      $canonicalQueryArray = explode('&', $canonicalQuery);
-      $canonicalQueryArrayNew = array();
-      foreach ($canonicalQueryArray as $key => $t) {
-        $ts = explode('=', $t);
-        if (!($ts && $ts[0] && in_array(strtolower($ts[0]), $authPrefixs))) {
-          if (!in_array($ts[0], $noSignQuery)) {
-            $canonicalQueryArrayNew[] = $t;
+    if ($noSignQuery === true){
+        $canonicalQuery = '';
+    }else {
+      // 重新排序编码
+      $canonicalQuery = Sign::canonicalQuerySort($canonicalQuery);
+      if ($canonicalQuery) {
+        $tPrefix = $this->signBaseHeadersPrefix;
+        $authPrefixs = array(
+          strtolower($tPrefix . 'auth'),
+          strtolower($tPrefix . 'authorization'),
+        );
+        $canonicalQueryArray = explode('&', $canonicalQuery);
+        $canonicalQueryArrayNew = array();
+        foreach ($canonicalQueryArray as $key => $t) {
+          $ts = explode('=', $t);
+          if (!($ts && $ts[0] && in_array(strtolower($ts[0]), $authPrefixs))) {
+            if (!in_array($ts[0], $noSignQuery)) {
+              $canonicalQueryArrayNew[] = $t;
+            }
           }
         }
+        $canonicalQuery = implode('&', $canonicalQueryArrayNew);
       }
-      $canonicalQuery = implode('&', $canonicalQueryArrayNew);
     }
 
     // 获取签名头
@@ -136,6 +141,8 @@ class AuthSignDdvUrlV1 extends AuthAbstract
 
     if (empty($noSignQuery)) {
       $canonicalRequest.="\n";
+    }elseif($noSignQuery===true){
+      $canonicalRequest.="\ntrue";
     }else{
       $canonicalRequest.="\n".implode(',', $noSignQuery);
     }
@@ -193,19 +200,23 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     
     // 编码
     $query = DdvUrl::buildQuery($query);
-    // 重新排序编码
-    $canonicalQuery = Sign::canonicalQuerySort($query);
+    if ($noSignQuery===true){
+        $canonicalQuery = '';
+    }else{
+      // 重新排序编码
+      $canonicalQuery = Sign::canonicalQuerySort($query);
 
-    if ($canonicalQuery) {
-      $canonicalQueryArray = explode('&', $canonicalQuery);
-      $canonicalQueryArrayNew = array();
-      foreach ($canonicalQueryArray as $key => $t) {
-        $ts = explode('=', $t);
-        if (!($ts && $ts[0] && in_array(strtolower($ts[0]), $noSignQuery))) {
-          $canonicalQueryArrayNew[] = $t;
+      if ($canonicalQuery) {
+        $canonicalQueryArray = explode('&', $canonicalQuery);
+        $canonicalQueryArrayNew = array();
+        foreach ($canonicalQueryArray as $key => $t) {
+          $ts = explode('=', $t);
+          if (!($ts && $ts[0] && in_array(strtolower($ts[0]), $noSignQuery))) {
+            $canonicalQueryArrayNew[] = $t;
+          }
         }
+        $canonicalQuery = implode('&', $canonicalQueryArrayNew);
       }
-      $canonicalQuery = implode('&', $canonicalQueryArrayNew);
     }
     $url = $path;
     if ($query) {
@@ -222,6 +233,8 @@ class AuthSignDdvUrlV1 extends AuthAbstract
     $canonicalRequest = "{$method}\n{$path}\n{$canonicalQuery}\n{$canonicalHeaders}";
     if (empty($noSignQuery)) {
       $canonicalRequest.="\n";
+    }elseif($noSignQuery===true){
+      $canonicalRequest.="\ntrue";
     }else{
       $canonicalRequest.="\n".implode(',', $noSignQuery);
     }
