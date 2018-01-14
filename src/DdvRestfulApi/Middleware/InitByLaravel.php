@@ -27,6 +27,7 @@ class InitByLaravel
       if (!self::$isHandle){
           return $next($request);
       }
+    $r = array();
     if(!$this->isDdvRestfulApiInit){
       $this->isDdvRestfulApiInit = true;
       $restfulApi = \DdvPhp\DdvRestfulApi::getInstance();
@@ -36,10 +37,10 @@ class InitByLaravel
       $restfulApi->requestParse();
       // 使用 ddvRestfulApi 跨越
       $restfulApi->initCors();
+      $r = &$restfulApi->responseData;
     }
-    $r = &$restfulApi->responseData;
     $response = $next($request);
-    if (isset($response->original)){
+    if (self::$isHandle&&isset($response->original)){
         if(class_exists('DdvPhp\DdvPage')){
           // 分页
           if(class_exists('Illuminate\Pagination\LengthAwarePaginator') && $response->original instanceof \Illuminate\Pagination\LengthAwarePaginator){
@@ -74,7 +75,7 @@ class InitByLaravel
           }
         }
     }
-    if (empty($r)){
+    if ((!self::$isHandle)||empty($r)){
       return $response;
     }
 
