@@ -20,11 +20,11 @@ class InitByLaravel
    * @return mixed
    */
   public static function setIsHandle($input){
-      InitByLaravel::$isHandle = (boolean)$input;
+      self::$isHandle = (boolean)$input;
   }
   public function handle($request, Closure $next, $guard = null)
   {
-      if (!InitByLaravel::$isHandle){
+      if (!self::$isHandle){
           return $next($request);
       }
     if(!$this->isDdvRestfulApiInit){
