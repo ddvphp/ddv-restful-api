@@ -56,10 +56,10 @@ final class ResponseParse
       try{
         //nginx模式
         if (strpos(PHP_SAPI, 'cgi') === 0){
-          header('Status: '.$statusCode.' '.$statusText, TRUE);
+          @header('Status: '.$statusCode.' '.$statusText, TRUE);
         }else{
           $serverProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
-          header($serverProtocol.' '.$statusCode.' '.$statusText, TRUE, $statusCode);
+          @header($serverProtocol.' '.$statusCode.' '.$statusText, TRUE, $statusCode);
           unset($serverProtocol);
         }
       }catch(Exception $e){}
