@@ -10,7 +10,7 @@ use PhpParser\Error;
 class InitByLaravel
 {
   protected $isDdvRestfulApiInit = false;
-  protected $isHandle = true;
+  protected static $isHandle = true;
   /**
    * Handle an incoming request.
    *
