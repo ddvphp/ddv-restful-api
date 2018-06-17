@@ -2,6 +2,7 @@
 
 namespace DdvPhp\DdvRestfulApi\Middleware;
 
+use Illuminate\Http\Response;
 use const null;
 use Closure;
 use Mockery\CountValidator\Exception;
@@ -39,6 +40,9 @@ class InitByLaravel
       $restfulApi->initCors();
       $r = &$restfulApi->responseData;
     }
+    /**
+    * @var Response $response
+    */
     $response = $next($request);
     if (self::$isHandle&&isset($response->original)){
         if(class_exists('DdvPhp\DdvPage')){
@@ -93,6 +97,7 @@ class InitByLaravel
     $response->original = $r ;
     $response->setStatusCode($r['statusCode'], $r['message']);
     $response->setContent(json_encode($r));
+    $response->header('content-type','application/json',true);
     return $response;
   }
 }
