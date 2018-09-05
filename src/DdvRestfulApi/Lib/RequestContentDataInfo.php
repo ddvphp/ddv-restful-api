@@ -107,7 +107,8 @@ class RequestContentDataInfo
         if (empty($key)){
             return;
         }
-        $key = DdvUrl::urlDecode(trim((string)$key));
+        $key = preg_replace('/\+/', '%20', (string)$key);
+        $key = DdvUrl::urlDecode(trim($key));
         $i = strpos($key, "\x00");
         if ($i!==false){
             $key = substr($key, 0, $i);
