@@ -55,7 +55,7 @@ class RequestContentDataInfo
             }
             $value = &$this->info;
         } elseif ($name) {
-            if (empty($this->info[$name])) {
+            if (!isset($this->info[$name])) {
                 $this->info[$name] = '';
             }
             $value = &$this->info[$name];

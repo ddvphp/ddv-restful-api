@@ -77,19 +77,26 @@ class RequestContentUrlencoded extends RequestContentParses implements RequestCo
                 }
 
                 foreach ($res as $item) {
-                    if (strpos($item, '=') !== false) {
-                        $res = explode('=', $item, 2);
-                        $this->data->reset($res[0])->value = DdvUrl::urlDecode(trim($res[1]));
-                    }
+                    $this->parseParameter($item);
                 }
                 if (!$this->isCompleted() && strlen($this->writeTempBuffer) > 0) {
                     $this->write('');
                 }
             }
-        } else {
-            $this->data->value .= $this->writeTempBuffer;
+        } elseif ($this->isCompleted()) {
+            $this->parseParameter($this->writeTempBuffer);
         }
         $this->checkCompleted();
+    }
+    protected function parseParameter($str = ''){
+        if (strpos($str, '=') !== false) {
+            $res = explode('=', $str, 2);
+            $this->data->reset($res[0])->value = DdvUrl::urlDecode(trim($res[1]));
+            unset($res);
+        }else{
+            $this->data->reset($str)->value = '';
+        }
+        unset($str);
     }
 
     protected function writeBody($buffer)
