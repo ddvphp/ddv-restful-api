@@ -76,10 +76,9 @@ class RequestContentUrlencoded extends RequestContentParses implements RequestCo
                 }
 
                 foreach ($res as $item) {
-                    $index = strpos($item, '=');
-                    if ($index !== false) {
-                        $a = substr($item, $index + strlen('='));
-                        $this->data->reset(substr($item, 0, $index))->value = $a;
+                    if (strpos($item, '=') !== false) {
+                        $res = explode('=', $item, 2);
+                        $this->data->reset($res[0])->value = $res[1];
                     }
                 }
                 if (!$this->isCompleted() && strlen($this->writeTempBuffer) > 0) {

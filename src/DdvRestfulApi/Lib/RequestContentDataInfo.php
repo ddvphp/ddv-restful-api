@@ -12,13 +12,19 @@ use Closure;
 
 class RequestContentDataInfo
 {
+    /**
+     * @var array
+     */
     protected $info = array();
+    /**
+     * @var array
+     */
     protected $data = array();
     /**
      * 毁掉钩子
      * @var array
      */
-    protected $hookCompleteds = [];
+    protected $hookCompleteds = array();
 
     public function __set($name, $value)
     {
@@ -91,8 +97,8 @@ class RequestContentDataInfo
      */
     public function reset($name = null)
     {
-        $this->info = [];
-        $this->hookCompleteds = [];
+        $this->info = array();
+        $this->hookCompleteds = array();
         if (!empty($name)) {
             $currLev = $name . '=p';
             $tmp = array();
