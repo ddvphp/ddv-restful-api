@@ -12,6 +12,7 @@ use Closure;
 use DdvPhp\DdvRestfulApi\Abstracts\RequestContentParses;
 use DdvPhp\DdvRestfulApi\Interfaces\HttpRequestStream;
 use DdvPhp\DdvRestfulApi\Interfaces\RequestContentParses as RequestContentParsesInterfaces;
+use DdvPhp\DdvUrl;
 use function GuzzleHttp\Psr7\str;
 
 class RequestContentUrlencoded extends RequestContentParses implements RequestContentParsesInterfaces
@@ -78,7 +79,7 @@ class RequestContentUrlencoded extends RequestContentParses implements RequestCo
                 foreach ($res as $item) {
                     if (strpos($item, '=') !== false) {
                         $res = explode('=', $item, 2);
-                        $this->data->reset($res[0])->value = $res[1];
+                        $this->data->reset($res[0])->value = DdvUrl::urlDecode(trim($res[1]));
                     }
                 }
                 if (!$this->isCompleted() && strlen($this->writeTempBuffer) > 0) {
