@@ -12,6 +12,7 @@ use Closure;
 use DdvPhp\DdvRestfulApi\Abstracts\RequestContentParses;
 use DdvPhp\DdvRestfulApi\Interfaces\HttpRequestStream;
 use DdvPhp\DdvRestfulApi\Interfaces\RequestContentParses as RequestContentParsesInterfaces;
+use DdvPhp\DdvUrl;
 use function GuzzleHttp\Psr7\str;
 
 class RequestContentMultipart extends RequestContentParses implements RequestContentParsesInterfaces
@@ -221,6 +222,7 @@ class RequestContentMultipart extends RequestContentParses implements RequestCon
 
             $this->data->onCompleted(function () {
                 $encoding = $this->data->encoding;
+                $this->data->value = DdvUrl::urlDecode(trim($this->data->value));
                 if (!empty($encoding) && strtoupper($encoding) !== 'UTF-8' && strtoupper($encoding) !== 'UTF8') {
                     $tmp = mb_convert_encoding($this->data->value, 'UTF-8', $encoding);
                     if ($tmp !== false)
