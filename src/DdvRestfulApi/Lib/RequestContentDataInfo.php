@@ -9,6 +9,7 @@
 namespace DdvPhp\DdvRestfulApi\Lib;
 
 use Closure;
+use DdvPhp\DdvUrl;
 
 class RequestContentDataInfo
 {
@@ -99,70 +100,74 @@ class RequestContentDataInfo
     {
         $this->info = array();
         $this->hookCompleteds = array();
-        if (!empty($name)) {
-            $currLev = $name . '=p';
-            $tmp = array();
-            parse_str($currLev, $tmp);
-            $isRun = true;
-            $_this = &$tmp;
-            while ($isRun) {
-                $isRun = false;
-                if (is_array($_this)) {
-                    foreach ($_this as $key => $value) {
-                        $_this2 = &$_this[$key];
-                        unset($_this);
-                        $_this = &$_this2;
-                        unset($_this2);
-                        $isRun = true;
+        $this->resetValue($name);
+        return $this;
+    }
+    protected function resetValue($key){
+        if (empty($key)){
+            return;
+        }
+        $key = DdvUrl::urlDecode(trim((string)$key));
+        $i = strpos($key, "\x00");
+        if ($i!==false){
+            $key = substr($key, 0, $i);
+        }
+        if (empty($key) || $key[0] === '['){
+            return;
+        }
+        $keys = array();
+        $postLeftBracketPos = 0;
+        for ($i = 0; $i < strlen($key); $i++){
+            if ($key[$i] === '[' && !$postLeftBracketPos){
+                $postLeftBracketPos = $i + 1;
+            }elseif($key[$i] === ']'){
+                if ($postLeftBracketPos){
+                    if (empty($keys)){
+                        $keys[] = substr($key, 0, $postLeftBracketPos - 1);
+                    }
+                    $keys[] = substr($key, $postLeftBracketPos, $i - $postLeftBracketPos);
+                    $postLeftBracketPos = 0;
+                    if (isset($key[$i+1])&&$key[$i+1]!=='['){
+                        break;
                     }
                 }
             }
-            if (isset($this->value)) {
-                unset($this->value);
+        }
+        unset($postLeftBracketPos);
+        if (empty($keys)){
+            $keys[] = $key;
+        }
+        for ($i = 0; $i < strlen($keys[0]); $i++){
+            $chr = $keys[0][$i];
+            if ($chr === ' ' || $chr === '.' || $chr === '[') {
+                $keys[0] = substr($keys[0], 0, $i) + '_' + substr($keys[0], $i + 1);
             }
-            if (is_array($this->info)) {
-                if (isset($this->info['value'])) {
-                    unset($this->info['value']);
+            if ($chr === '[') {
+                break;
+            }
+        }
+        $data = &$this->data;
+        for ($i = 0, $keysLen = count($keys); $i < $keysLen; $i++){
+            $key = preg_replace('/[\'"]$/', '', preg_replace('/^[\'"]/', '', $keys[$i]));
+            $lastData = &$data;
+            if (($key !== '' && $key !== ' ') || $i === 0){
+                if (!isset($data[$key])){
+                    $data[$key] = array();
                 }
-                $_this = '';
-                $this->info['value'] = &$_this;
+                $data = &$data[$key];
+            }else{
+                $ct = -1;
+                foreach ($data as $p => $pv){
+                    if (is_numeric($p)){
+                        $ct = (int)$p + 1;
+                    }
+                }
+                $key = $ct + 1;
+                unset($ct);
             }
-            self::recursiveSetter($name, $this->data, $tmp);
-            unset($_this, $isRun, $currLev, $tmp);
         }
-        return $this;
-    }
-
-    public static function &recursiveSetter($spec, &$array, &$array2)
-    {
-        if (!is_array($spec)) {
-            $spec = explode('[', (string)$spec);
-        }
-        $currLev = array_shift($spec);
-        $currLev = rtrim($currLev, ']');
-        if ($currLev !== '') {
-            $currLev = $currLev . '=p';
-            $tmp = array();
-            parse_str($currLev, $tmp);
-            $tmp = array_keys($tmp);
-            $currLev = reset($tmp);
-        }
-
-        if (!is_array($array)) {
-            $array = &$array2;
-        } else if ($currLev === '') {
-            $key = key($array2);
-            if ($key && isset($array2[$key])) {
-                $array[] = &$array2[$key];
-            }
-            unset($key);
-        } else if (isset($array[$currLev]) && isset($array2[$currLev])) {
-            $array[$currLev] = &self::recursiveSetter($spec, $array[$currLev], $array2[$currLev]);
-        } else if (isset($array2[$currLev])) {
-            $array[$currLev] = &$array2[$currLev];
-            //var_dump('xx*x/x*x*x/xx//==',$array2[ $currLev ]);
-        }
-        return $array;
+        $lastData[$key] = &$this->info['value'];
+        unset($i, $key, $keys, $data, $lastData, $keysLen);
     }
 
     public function getData()
