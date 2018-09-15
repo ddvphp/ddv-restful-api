@@ -23,8 +23,6 @@ class AuthDataSessionLaravelDriver extends AuthDataDriver implements AuthDataDri
 
     public function read($sessionId)
     {
-        $sessionId = strlen($sessionId) === 40 ? $sessionId : $sessionId . '88888888';
-
         $session = $this->session->getSession($sessionId);
         $session->start();
         $authData = $session->get('__ddvAuthData__');
@@ -33,7 +31,6 @@ class AuthDataSessionLaravelDriver extends AuthDataDriver implements AuthDataDri
 
     public function write($sessionId, $authData)
     {
-        $sessionId = strlen($sessionId) === 40 ? $sessionId : $sessionId . '88888888';
         $session = $this->session->getSession($sessionId);
         $session->put('__ddvAuthData__', $authData);
         $session->save();

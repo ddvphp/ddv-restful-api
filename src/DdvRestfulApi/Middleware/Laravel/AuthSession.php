@@ -34,13 +34,6 @@ class AuthSession
     protected $manager;
 
     /**
-     * 指示是否为当前请求处理了会话。
-     *
-     * @var bool
-     */
-    protected $sessionHandled = false;
-
-    /**
      * 创建一个新的会话中间件。
      *
      * @param  \Illuminate\Session\SessionManager  $manager
@@ -64,24 +57,15 @@ class AuthSession
             RequestInfo::createHttpRequestInfo($request);
         }
         /**
-         * @var RequestInfoInterface $requestInfo
-         */
-        $requestInfo = $request->ddvHttpRequestInfo;
-        /**
          * @var RequestSignInfo $requestSignInfo
          */
         $requestSignInfo = new RequestSignInfo();
         /**
          * 设置请求信息
          */
-        $requestSignInfo->createRequestInfo($requestInfo);
-        $requestSignInfo->setHeadersPrefix('x-ddv-');
+        $requestSignInfo->createRequestInfo($request->ddvHttpRequestInfo);
+        $requestSignInfo->setHeadersPrefix(config('ddvRestfulApi.headersPrefix'));
 
-        //$config = $this->manager->getSessionConfig();
-        // 过去时间
-        //return $config['expire_on_close'] ? 0 : Carbon::now()->addMinutes($config['lifetime']);
-
-        $sessionName = config('session.cookie');
         $auth = new Auth();
         $auth->setRequestSignInfo($requestSignInfo);
         $auth->setConfig(array(
@@ -93,34 +77,23 @@ class AuthSession
         );
         $auth->sign();
 
-        $sessionId = $auth->getAccessKeyId();
-        $sessionId = strlen($sessionId) === 40 ? $sessionId : $sessionId . '88888888';
-        
-        
         // 开启会话
-        
-        $this->sessionHandled = true;
-        echo "\n22*999+9\n";
-        var_dump($this->sessionHandled);
 
         // 如果已配置会话驱动程序，我们需要在此处启动会话
         // 以便数据为应用程序做好准备。 请注意Laravel会话
         // 不要以任何方式使用PHP“本机”会话，因为它们很糟糕。
         if ($this->sessionConfigured()) {
             $request->setLaravelSession(
-                $session = $this->startSession($request, $sessionId)
+                $session = $this->startSession($request, $auth->getAccessKeyId())
             );
 
             $this->collectGarbage($session);
         }
 
-        // 保存会话
-        $session->save();
         // 开启项目
         $response = $next($request);
         // 保存会话
         $session->save();
-
 
 
         return $response;
@@ -136,11 +109,12 @@ class AuthSession
      */
     public function terminate($request, $response)
     {
-            echo "2232322\n";
-            var_dump($this->sessionHandled, $request->manager);
-        if ($this->sessionHandled && $this->sessionConfigured()) {
-            echo "2232322";
-            $this->manager->driver()->save();
+        if ($this->sessionConfigured()){
+            $session = $request->getSession();
+            if (!empty($session) && method_exists($session, 'save')){
+                $session->save();
+            }
+            unset($session);
         }
     }
 
