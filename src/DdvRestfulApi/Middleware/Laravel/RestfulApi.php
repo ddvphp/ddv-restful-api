@@ -15,9 +15,17 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use DdvPhp\DdvRestfulApi;
 use DdvPhp\DdvRestfulApi\Lib\HttpRequestStream;
 use Illuminate\Http\Request;
+use DdvPhp\DdvRestfulApi\Interfaces\RequestInfo as RequestInfoInterface;
 
 class RestfulApi
 {
+    /**
+     * @param Request $request
+     * @param Closure $next
+     * @param null $guard
+     * @return Response|mixed
+     * @throws DdvRestfulApi\Exception\RequestParseError
+     */
     public function handle(Request $request, Closure $next, $guard = null)
     {
         if (empty($request->ddvHttpRequestInfo) || (!($request->ddvHttpRequestInfo instanceof RequestInfoInterface))) {
@@ -96,8 +104,13 @@ class RestfulApi
         $r['data'] = empty($r['data']) ? (object)array() : $r['data'];
         $r['page'] = empty($r['page']) ? (object)array() : $r['page'];
 
+        $statusCode = $r['statusCode'];
+        if ($statusCode>= 600 || $statusCode < 100){
+            $statusCode = 500;
+        }
+
         $response->original = $r;
-        $response->setStatusCode($r['statusCode'], $r['message']);
+        $response->setStatusCode($statusCode, $r['message']);
         $response->setContent(json_encode($r));
         $response->header('content-type', 'application/json', true);
         return $response;

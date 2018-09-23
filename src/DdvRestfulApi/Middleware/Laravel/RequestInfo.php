@@ -17,12 +17,23 @@ use DdvPhp\DdvRestfulApi\Interfaces\RequestInfo as RequestInfoInterface;
 class RequestInfo
 {
 
+    /**
+     * @param Request $request
+     * @param Closure $next
+     * @param null $config
+     * @return mixed
+     * @throws RequestParseError
+     */
     public function handle(Request $request, Closure $next, $config = null)
     {
         self::createHttpRequestInfo($request);
         return $next($request);;
     }
 
+    /**
+     * @param Request $request
+     * @throws RequestParseError
+     */
     public static function createHttpRequestInfo(Request $request)
     {
         $isCompleted = false;
