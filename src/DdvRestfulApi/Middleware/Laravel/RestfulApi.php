@@ -184,6 +184,10 @@ class RestfulApi
             $r = array_merge($exception->getResponseData(), $r);
         }
 
+        if ($statusCode>= 600 || $statusCode < 100){
+            $statusCode = 500;
+        }
+        
         $response = new Response();
         $response->setStatusCode($statusCode, $errorId);
         foreach ($flattenException->getHeaders() as $key => $values) {
